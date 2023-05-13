@@ -1,7 +1,7 @@
 import { AppDataSource } from "./data-source";
 import { User } from "../entity/User";
 
-export const initalize = () => {
+export const initialize = () => {
   AppDataSource.initialize()
     .then(async () => {
       console.log("Inserting a new user into the database...");

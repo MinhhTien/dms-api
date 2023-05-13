@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { initalize } from "./database/initiation";
+import { initialize } from "./database/initiation";
 
 dotenv.config();
 
@@ -14,7 +14,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-initalize();
+initialize();
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
