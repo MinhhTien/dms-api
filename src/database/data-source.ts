@@ -6,7 +6,7 @@ dotenv.config();
 const { DB_HOST, DB_PORT, DB_USERNAME, DB_PASSWORD, DB_NAME } = process.env;
 
 export const AppDataSource = new DataSource({
-  type: "mysql",
+  type: "postgres",
   host: DB_HOST || "localhost",
   port: DB_PORT ? Number.parseInt(DB_PORT) : 3306,
   username: DB_USERNAME || "root",
