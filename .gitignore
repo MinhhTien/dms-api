@@ -6,3 +6,6 @@ tmp/
 temp/
 
 .env
+
+src/routes.ts
+src/swagger.json
