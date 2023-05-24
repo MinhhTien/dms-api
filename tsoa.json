@@ -1,7 +1,7 @@
 {
   "entryFile": "src/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
-  "controllerPathGlobs": ["./**/*Controller.ts"],
+  "controllerPathGlobs": ["./**/*.controller.ts"],
   "spec": {
     "outputDirectory": "./src",
     "specVersion": 3
