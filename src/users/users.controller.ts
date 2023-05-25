@@ -10,7 +10,7 @@ import { User } from './entities/user.entity';
 
 @Route('users')
 export class UsersController extends Controller {
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['EMPLOYEE'])
   @Tags('User')
   @Get('own')
   public getUser(
