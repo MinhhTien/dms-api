@@ -1,3 +1,4 @@
+import path from "path";
 import { DataSource } from "typeorm";
 
 const dotenv = require("dotenv");
@@ -14,7 +15,6 @@ export const AppDataSource = new DataSource({
   database: DB_NAME || "test",
   synchronize: true,
   logging: true,
-  entities: [],
-  subscribers: [],
-  migrations: [],
+  entities: [path.resolve(__dirname + '/../**/*.entity{.js,.ts}')],
+  migrations: [path.resolve(__dirname + '/../migrations', '*{.js,.ts}')],
 });

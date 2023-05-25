@@ -8,7 +8,10 @@
       "start": "node build/src/index.js",
       "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
       "test": "echo \"Error: no test specified\" && exit 1",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "typeorm:gen": "typeorm-ts-node-commonjs migration:generate src/migrations/seed -d src/database/data-source.ts",
+      "typeorm:create": "typeorm-ts-node-commonjs migration:create src/migrations/seed",
+      "typeorm:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
+      "typeorm:sync": "typeorm-ts-node-commonjs schema:sync -d src/database/data-source.ts"
    },
    "keywords": [],
    "author": "",
@@ -19,6 +22,7 @@
       "dotenv": "^16.0.3",
       "express": "^4.18.2",
       "firebase-admin": "^11.8.0",
+      "jsonwebtoken": "^9.0.0",
       "pg": "^8.11.0",
       "reflect-metadata": "^0.1.13",
       "swagger-ui-express": "^4.6.3",

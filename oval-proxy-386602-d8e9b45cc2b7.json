@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "oval-proxy-386602",
+  "private_key_id": "d8e9b45cc2b7f3ab0777081cd5c6d3a34eda86bc",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDWiFkOdWtvB4nl\nBDGHnQDEZE8REcb37mG4y2vBpBFza+F5MVMtweyQieSFzxbb1XGx8MPzteIa4isC\nTskQQRtjsBtKUKYSyfrdqJ2vdLkTiDahhow361AQiWPw+Kilb4z8a5M5G86yjPMt\n9xTyV/5a+wDktpamFMOQ4nnZRHSuoZuEWcqmDbdf2oO9baGGVjzDwhimEezPaJZ5\n+kUPpx94+tdanUejB0MjCSJwOCq57ahKjtKMEsrVK0ixnO+NX+PA6Q9UWrieHimF\n/tKCZSY3aTyKZa0r2z1miVvLuYeOSU0LtF7HwjcoTRuq1jX8zytzqeNB45f2mTzG\nsuFtVFhxAgMBAAECggEAH1Zu9eD6ls8p2jmU15u8WTPS5eosH5rjjPgwDyr9fpf/\naXHmVdyKRynRZydzThz9fPHv2cmTk/w+LpneHoD4NIVs0xv5SmzVN6xSDmd1QpBm\n9IzgLinyOdwr7G8SSYpENLotGQ5CEQxsWGZLmcP3TIh2XrJ6SpvlXmRqyq1Igxql\nT4QXX27LjY365ZE9wLNIzEQuzAXFnPCtFd/gAY9NdlGwLugG0mTCk6LkKf9tNbNO\n8WcKLVD2c3CYQ2Vi5jKdijfaLhx3+8u4Z/7ut/ZtTNrLgkfNqGc3BPYOhLQExtLJ\nNbYNJHugSnIw4zpaPGNvcrdgOoIio9cJigATFyXBLQKBgQDvAC4LQB+vLuopR5rt\nd8vNQLwQJ1cQHDL87WOEXcwmFAMCgAlpqobbB870fMjNQOMnya+F+2ohN5NegHJJ\natmn8lBrEm+nO9hOaWqWEPpuUaX5Th+KQusDv2ZtcNaJONxK+zd922UCvjc3JuDe\noVJEvaw6yZjpcYuZtXcG7sMF/QKBgQDlyqSpLqooFYPRo0Ji0ZOZ5uOWvvXc5s/n\nBFtj9vrQz7i3LN4zkkSS9j0GrYLXLNrb1Q+GUQZDTnOg11vpZLOiQA/c+7LXj/fV\nRro6xkavLB94SbWyDn46yOAGctUaG89tlzx/Fvt6fNu6dClJdXnKTRArz/I+oqM8\nsA2mJIHshQKBgQCfc/NENkftTNOVLtzCSgaCrgnKjTSc3vN1o7udeCbX0MohROMC\nyG6oexEsNISTzBLBXOHp9c7c0oNTrUaSjOMiFZxpkydC3750sggWjsVGDNs69VA9\nol/BZFUl9v5rFrCCphBju5gsuFOGTD4CyoZkrlbV8eI+/S4yIsuCqJEc0QKBgHOg\neSSMT6Cl2tOU8+WnkT7i2GhVJIAIQFr9bUMq1uBVdZvuXszSb+EHOIPwsSK29lWh\nqxMqGB2sDzDCzQPu4RjmZVUL7dzcG5fc4/6JIK4qZJdxd5TmCAxqYZe9Fo/xqHl7\nnTxSAy6KP0JeCxxkmWj7SATTuRBdZAg4ilWsjxfFAoGALexxKfBrRpDhob8tPHMJ\nBbYeOEQM+DTZ5NzjD9lL/sd5RltwJv/OM4gfvGqsDOZDxMIgIIItXX+Gx7Hvti/N\nthEhnIe1+hcBXqWmHhsV344GvtNg6s4IbolsqF5egQSuPD7AQY75H5j8XsEpBkeY\neJftIFwLsN1HKBmOWEWAwjM=\n-----END PRIVATE KEY-----\n",
+  "client_email": "dms-user@oval-proxy-386602.iam.gserviceaccount.com",
+  "client_id": "116705357388553412961",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/dms-user%40oval-proxy-386602.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
