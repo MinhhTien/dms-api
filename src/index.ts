@@ -70,7 +70,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 // Not found handler
-app.use(function notFoundHandler(req, res: Response) {
+app.use((req, res: Response) => {
   res.status(404).send({
     message: 'Not Found',
   });

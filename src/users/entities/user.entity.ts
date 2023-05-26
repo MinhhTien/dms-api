@@ -27,7 +27,7 @@ export class User {
   status: Status;
 
   @CreateDateColumn()
-  createdAt: Date;
+  created_at: Date;
 
   @ManyToOne(() => Role, (role) => role.users)
   role: Role;
