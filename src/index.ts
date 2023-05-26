@@ -1,4 +1,4 @@
-import { initializeApp, applicationDefault } from 'firebase-admin/app';
+import { initializeApp, cert, ServiceAccount } from 'firebase-admin/app';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -9,10 +9,12 @@ import * as swaggerUI from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
 import { UnauthorizedError } from './authentication';
 
+import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
+
 dotenv.config();
 
 initializeApp({
-  credential: applicationDefault(),
+  credential: cert(serviceAccount as ServiceAccount),
 });
 
 const app: Express = express();
