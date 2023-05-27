@@ -1,5 +1,12 @@
 import { Status } from '../../constants/enum';
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Role } from './role.entity';
 import { Department } from '../../departments/entities/department.entity';
 
@@ -30,8 +37,10 @@ export class User {
   created_at: Date;
 
   @ManyToOne(() => Role, (role) => role.users)
+  @JoinColumn({ name: 'role_id' })
   role: Role;
 
   @ManyToOne(() => Department, (department) => department.users)
+  @JoinColumn({ name: 'department_id' })
   department: Department;
 }
