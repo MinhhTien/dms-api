@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as jwt from 'jsonwebtoken';
 import { DecodedIdToken, getAuth } from 'firebase-admin/auth';
 import { UsersService } from '../users/users.service';
 
