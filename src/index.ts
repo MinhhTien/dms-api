@@ -7,7 +7,7 @@ import { initialize } from './database/initiation';
 import { RegisterRoutes } from './routes';
 import * as swaggerUI from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
-import { UnauthorizedError } from './authentication';
+import { UnauthorizedError, ForbiddenError } from './constants/response';
 
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
 
@@ -50,6 +50,13 @@ app.use(
       console.warn(`Caught Validation Error for ${req.path}:`, err.message);
       return res.status(401).json({
         message: 'Unauthorized',
+        details: err?.message,
+      });
+    }
+    if (err instanceof ForbiddenError) {
+      console.warn(`Caught Validation Error for ${req.path}:`, err.message);
+      return res.status(403).json({
+        message: 'Forbidden',
         details: err?.message,
       });
     }
