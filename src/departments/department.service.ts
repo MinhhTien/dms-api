@@ -20,10 +20,15 @@ export class DepartmentService {
   }
 
   public async update(department: DepartmentDto) {
-    const result = await AppDataSource.getRepository(Department).update({
+    try {
+      const result = await AppDataSource.getRepository(Department).update({
         id: department.id
     }, department)
     return result.affected === 1;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
   }
 
   public async delete(id: string) {
