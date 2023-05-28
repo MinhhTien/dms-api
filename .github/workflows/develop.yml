@@ -25,10 +25,7 @@ jobs:
           instance_name: 'dms'
           zone: 'us-west4-b	'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-          command: |-
-            echo Hello DMS Server
-            ls
-            echo Good job
+          command: 'echo Hello DMS Server && echo $(pwd)'
       - id: 'test'
         run: |-
           echo '${{ steps.compute-ssh.outputs.stdout }}'
