@@ -20,12 +20,13 @@ jobs:
           workload_identity_provider: 'projects/279802990362/locations/global/workloadIdentityPools/dms-swp/providers/dms-provider'
           service_account: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}'
       - id: 'compute-ssh'
+        name: 'Deployment'
         uses: 'google-github-actions/ssh-compute@v0'
         with:
           instance_name: 'dms'
           zone: 'us-west4-b	'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-          command: 'echo Hello DMS Server && echo $(pwd)'
+          command: 'echo Hello DMS Server && cd ../minhtienn1209 && ./deploy.sh'
       - id: 'test'
         run: |-
           echo '${{ steps.compute-ssh.outputs.stdout }}'
