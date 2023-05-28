@@ -17,8 +17,8 @@ jobs:
         uses: 'google-github-actions/auth@v1'
         with:
           create_credentials_file: true
-          workload_identity_provider: 'projects/279802990362}/locations/global/workloadIdentityPools/dms-swp/providers/dms-provider'
-          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          workload_identity_provider: 'projects/279802990362/locations/global/workloadIdentityPools/dms-swp/providers/dms-provider'
+          service_account: '${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}'
       - id: 'compute-ssh'
         uses: 'google-github-actions/ssh-compute@v0'
         with:
