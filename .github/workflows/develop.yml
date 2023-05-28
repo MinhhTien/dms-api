@@ -1,0 +1,33 @@
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    #Allow the job to fetch a Github ID token
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          create_credentials_file: true
+          workload_identity_provider: 'projects/279802990362}/locations/global/workloadIdentityPools/dms-swp/providers/dms-provider'
+          service_account: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+      - id: 'compute-ssh'
+        uses: 'google-github-actions/ssh-compute@v0'
+        with:
+          instance_name: 'dms'
+          zone: 'us-west4-b	'
+          ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
+          command: 'echo Hello DMS Server'
+      - id: 'test'
+        run: |-
+          echo '${{ steps.compute-ssh.outputs.stdout }}'
+          echo '${{ steps.compute-ssh.outputs.stderr }}'
+          
