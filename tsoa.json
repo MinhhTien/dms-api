@@ -5,6 +5,7 @@
   "spec": {
     "outputDirectory": "./src",
     "specVersion": 3,
+    "name": "Document Management System",
     "securityDefinitions": {
       "api_key": {
         "type": "apiKey",
