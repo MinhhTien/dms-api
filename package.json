@@ -9,7 +9,8 @@
       "dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
       "test": "echo \"Error: no test specified\" && exit 1",
       "typeorm:gen": "typeorm-ts-node-commonjs migration:generate src/migrations/seed -d src/database/data-source.ts",
-      "typeorm:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts"
+      "typeorm:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
+      "connect-db": "./cloud-sql-proxy --credentials-file oval-proxy-386602-d8e9b45cc2b7-service-account.json oval-proxy-386602:us-central1:postgresql &"
    },
    "keywords": [],
    "author": "",
