@@ -7,7 +7,7 @@ temp/
 
 .env
 *service-account.json
-*.exe
+cloud-sql-proxy*
 
 src/routes.ts
 src/swagger.json

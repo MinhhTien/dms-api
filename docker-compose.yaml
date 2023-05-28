@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  server:
+    container_name: dms_server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - npm run connect-db && npm run start
+    ports:
+      - 8000:8000
+      - 5432:5432
+      - 53:53
+    volumes:
+      - ./:/DMS-Server
+    networks:
+      - dms_net
+    
+networks:
+  dms_net:
+    driver: bridge
