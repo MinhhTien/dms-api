@@ -10,13 +10,15 @@
       "test": "echo \"Error: no test specified\" && exit 1",
       "typeorm:gen": "typeorm-ts-node-commonjs migration:generate src/migrations/seed -d src/database/data-source.ts",
       "typeorm:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
-      "connect-db": "./cloud-sql-proxy --credentials-file oval-proxy-386602-d8e9b45cc2b7-service-account.json oval-proxy-386602:us-central1:postgresql &"
+      "connect-db": "cloud-sql-proxy --credentials-file oval-proxy-386602-d8e9b45cc2b7-service-account.json oval-proxy-386602:us-central1:postgresql &"
    },
    "keywords": [],
    "author": "",
    "license": "ISC",
    "dependencies": {
       "body-parser": "^1.20.2",
+      "class-transformer": "^0.5.1",
+      "class-validator": "^0.14.0",
       "cors": "^2.8.5",
       "dotenv": "^16.0.3",
       "express": "^4.18.2",
@@ -24,6 +26,7 @@
       "pg": "^8.11.0",
       "reflect-metadata": "^0.1.13",
       "swagger-ui-express": "^4.6.3",
+      "tsyringe": "^4.7.0",
       "typeorm": "0.3.16"
    },
    "devDependencies": {

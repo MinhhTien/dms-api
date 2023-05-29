@@ -2,14 +2,21 @@ import { Department } from './entities/department.entity';
 import { AppDataSource } from '../database/data-source';
 import { DepartmentDto, CreateDepartmentDto } from './dtos/department.dto';
 import { UUID } from 'type/global';
+import { singleton } from 'tsyringe';
 
+@singleton()
 export class DepartmentService {
   public async getOne(id: UUID) {
-    return await AppDataSource.getRepository(Department).findOne({
-      where: {
-        id: id
-      },
-    });
+    try {
+      return await AppDataSource.getRepository(Department).findOne({
+        where: {
+          id: id
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
   public async getAll() {
     return await AppDataSource.getRepository(Department).find();
