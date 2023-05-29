@@ -7,7 +7,11 @@ import { initialize } from './database/initiation';
 import { RegisterRoutes } from './routes';
 import * as swaggerUI from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
-import { UnauthorizedError, ForbiddenError } from './constants/response';
+import {
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+} from './constants/response';
 
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
 
@@ -39,6 +43,12 @@ app.use(
     res: Response,
     next: NextFunction
   ): Response | void => {
+    if (err instanceof NotFoundError) {
+      console.warn(`Caught Not Found Error for ${req.path}:`);
+      return res.status(404).json({
+        message: err?.message,
+      });
+    }
     if (err instanceof ValidateError) {
       console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
       return res.status(422).json({

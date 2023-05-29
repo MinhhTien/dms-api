@@ -15,7 +15,7 @@ export class Category {
   @Column()
   name: string;
 
-  @ManyToOne(() => Department, (department) => department.users)
+  @ManyToOne(() => Department, (department) => department.categories)
   @JoinColumn({ name: 'department_id' })
   department: Department;
 }

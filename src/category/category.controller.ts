@@ -10,10 +10,15 @@ import {
   Post,
   Put,
   Delete,
+  Query,
 } from 'tsoa';
 import { CategoryService } from './category.service';
-import { BadRequestError, SuccessResponse } from './../constants/response';
-import { CategoryDto, CreateCategoryDto } from './dtos/category.dto';
+import {
+  BadRequestError,
+  SuccessResponse,
+  NotFoundError,
+} from './../constants/response';
+import { CategoryDto, CreateCategoryDto, UUID } from './dtos/category.dto';
 
 @Tags('Category')
 @Route('category')
@@ -28,25 +33,34 @@ export class CategoryController extends Controller {
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('')
   @Response<SuccessResponse>(200)
-  public async getAll() {
-    const categories = await this.categoryService.getAll();
+  public async getAll(@Query() departmentId?: UUID) {
+    let categories: CategoryDto[]
+    if (departmentId) {
+      console.log(departmentId)
+      categories = await this.categoryService.getByDepartment(departmentId);
+    } else {
+      categories = await this.categoryService.getAll();
+    }
     return new SuccessResponse('Success', categories);
   }
 
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('{id}')
   @Response<SuccessResponse>(200)
-  @Response<BadRequestError>(400)
-  public async getOne(@Path() id: string) {
+  @Response<NotFoundError>(404)
+  public async getOne(
+    @Path()
+    id: UUID
+  ) {
     const category = await this.categoryService.getOne(id);
     if (category) {
       return new SuccessResponse('Success', category);
     } else {
-      throw new BadRequestError('Category not found', null);
+      throw new NotFoundError('Category not found');
     }
   }
 
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
   @Post()
   public async create(@Body() body: CreateCategoryDto) {
@@ -54,7 +68,7 @@ export class CategoryController extends Controller {
     return new SuccessResponse('Success', category);
   }
 
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
   @Put()
@@ -67,11 +81,11 @@ export class CategoryController extends Controller {
     }
   }
 
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
   @Delete('{id}')
-  public async delete(@Path() id: string) {
+  public async delete(@Path() id: UUID) {
     const result = await this.categoryService.delete(id);
     if (result) {
       return new SuccessResponse('Successfully delete category', result);
