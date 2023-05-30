@@ -7,7 +7,7 @@ import { initialize } from './database/initiation';
 import { RegisterRoutes } from './routes';
 import * as swaggerUI from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
-import { UnauthorizedError, ForbiddenError } from './constants/response';
+import { UnauthorizedError, ForbiddenError, BadRequestError } from './constants/response';
 
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
 
@@ -47,14 +47,21 @@ app.use(
       });
     }
     if (err instanceof UnauthorizedError) {
-      console.warn(`Caught Validation Error for ${req.path}:`, err.message);
+      console.warn(`Caught Unauthorized Error for ${req.path}:`, err.message);
       return res.status(401).json({
         message: 'Unauthorized',
         details: err?.message,
       });
     }
+    if (err instanceof BadRequestError) {
+      console.warn(`Caught Bad Request Error for ${req.path}:`, err.message);
+      return res.status(400).json({
+        message: 'Bad Request',
+        details: err?.message,
+      });
+    }
     if (err instanceof ForbiddenError) {
-      console.warn(`Caught Validation Error for ${req.path}:`, err.message);
+      console.warn(`Caught Forbidden Error for ${req.path}:`, err.message);
       return res.status(403).json({
         message: 'Forbidden',
         details: err?.message,

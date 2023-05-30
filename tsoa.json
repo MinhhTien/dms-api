@@ -5,6 +5,7 @@
   "spec": {
     "outputDirectory": "./src",
     "specVersion": 3,
+    "name": "Document Management System",
     "securityDefinitions": {
       "api_key": {
         "type": "apiKey",
@@ -15,6 +16,7 @@
   },
   "routes": {
     "routesDir": "./src",
-    "authenticationModule": "./src/authentication/index.ts"
+    "authenticationModule": "./src/authentication/index.ts",
+    "iocModule": "src/lib/ioc.container.ts"
   }
 }
