@@ -10,7 +10,7 @@ import { ValidateError } from 'tsoa';
 import {
   UnauthorizedError,
   ForbiddenError,
-  NotFoundError,
+  BadRequestError,
 } from './constants/response';
 
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
@@ -43,12 +43,6 @@ app.use(
     res: Response,
     next: NextFunction
   ): Response | void => {
-    if (err instanceof NotFoundError) {
-      console.warn(`Caught Not Found Error for ${req.path}:`);
-      return res.status(404).json({
-        message: err?.message,
-      });
-    }
     if (err instanceof ValidateError) {
       console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
       return res.status(422).json({
@@ -57,14 +51,21 @@ app.use(
       });
     }
     if (err instanceof UnauthorizedError) {
-      console.warn(`Caught Validation Error for ${req.path}:`, err.message);
+      console.warn(`Caught Unauthorized Error for ${req.path}:`, err.message);
       return res.status(401).json({
         message: 'Unauthorized',
         details: err?.message,
       });
     }
+    if (err instanceof BadRequestError) {
+      console.warn(`Caught Bad Request Error for ${req.path}:`, err.message);
+      return res.status(400).json({
+        message: 'Bad Request',
+        details: err?.message,
+      });
+    }
     if (err instanceof ForbiddenError) {
-      console.warn(`Caught Validation Error for ${req.path}:`, err.message);
+      console.warn(`Caught Forbidden Error for ${req.path}:`, err.message);
       return res.status(403).json({
         message: 'Forbidden',
         details: err?.message,

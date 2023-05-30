@@ -15,10 +15,10 @@ import {
 import { CategoryService } from './category.service';
 import {
   BadRequestError,
-  SuccessResponse,
-  NotFoundError,
+  SuccessResponse
 } from './../constants/response';
-import { CategoryDto, CreateCategoryDto, UUID } from './dtos/category.dto';
+import { CategoryDto, CreateCategoryDto } from './dtos/category.dto';
+import { UUID } from '../type/global';
 
 @Tags('Category')
 @Route('category')
@@ -47,7 +47,7 @@ export class CategoryController extends Controller {
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('{id}')
   @Response<SuccessResponse>(200)
-  @Response<NotFoundError>(404)
+  @Response<BadRequestError>(400)
   public async getOne(
     @Path()
     id: UUID
@@ -56,7 +56,7 @@ export class CategoryController extends Controller {
     if (category) {
       return new SuccessResponse('Success', category);
     } else {
-      throw new NotFoundError('Category not found');
+      throw new BadRequestError('Category not found');
     }
   }
 
