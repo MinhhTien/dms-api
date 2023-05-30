@@ -74,6 +74,17 @@ export class RoomService {
   public async update(room: UpdateRoomDto) {
     try {
       //check if room is existed and capacity is not smaller than current number of lockers
+      const currentRoom = await this.roomRepository.findOne({
+        where: {
+          id: room.id,
+        },
+        relations: ['lockers'],
+      });
+      if (currentRoom) {
+        if (room.capacity < currentRoom.lockers.length) {
+          return 'Capacity must greater or equal to current number of lockers.';
+        }
+      }
       const result = await this.roomRepository.update(
         {
           id: room.id,
@@ -81,8 +92,13 @@ export class RoomService {
         room
       );
       return result.affected === 1;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log("====")
+      console.error(error?.driverError?.detail);
+      console.log("====")
+      if (error?.driverError?.detail?.includes('already exists')) {
+        return 'Room name is already existed.';
+      }
       return false;
     }
   }
