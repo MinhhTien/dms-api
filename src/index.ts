@@ -7,7 +7,11 @@ import { initialize } from './database/initiation';
 import { RegisterRoutes } from './routes';
 import * as swaggerUI from 'swagger-ui-express';
 import { ValidateError } from 'tsoa';
-import { UnauthorizedError, ForbiddenError, BadRequestError } from './constants/response';
+import {
+  UnauthorizedError,
+  ForbiddenError,
+  BadRequestError,
+} from './constants/response';
 
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
 
