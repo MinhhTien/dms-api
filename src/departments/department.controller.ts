@@ -9,12 +9,15 @@ import {
   Body,
   Put,
   Delete,
-  Response
+  Response,
 } from 'tsoa';
 import { SuccessResponse, BadRequestError } from '../constants/response';
 import type { UUID } from '../type/global';
 import { DepartmentService } from '../departments/department.service';
-import { DepartmentDto, CreateDepartmentDto } from './dtos/department.dto';
+import {
+  UpdateDepartmentDto,
+  CreateDepartmentDto,
+} from './dtos/department.dto';
 import { Department } from './entities/department.entity';
 import { injectable } from 'tsyringe';
 
@@ -26,53 +29,75 @@ export class DepartmentController extends Controller {
     super();
   }
 
+  /**
+   * Retrieves a department.
+   * @param id The id of department
+   */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('/:id')
   @Response<Department>(200)
   @Response<BadRequestError>(400)
   public async getOne(@Path() id: UUID) {
     const result = await this.departmentService.getOne(id);
-    console.log(result);
-    if(result !== null) return new SuccessResponse('Success', result);
+    if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Wrong department id');
   }
 
+  /**
+   * Retrieves departments.
+   */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('')
   @Response<Department[]>(200)
   public async getMany() {
-    return new SuccessResponse('Success', await this.departmentService.getAll());
+    return new SuccessResponse(
+      'Success',
+      await this.departmentService.getAll()
+    );
   }
 
+  /**
+   * Creates a department. (STAFF only)
+   */
   @Security('api_key', ['STAFF'])
   @Post('')
   public async create(@Body() body: CreateDepartmentDto) {
-    return this.departmentService.create(body);
+    const result = await this.departmentService.create(body);
+    if (result) {
+      return new SuccessResponse('Department was created successfully.', result);
+    } else throw new BadRequestError('Department name is already existed.');
   }
 
+  /**
+   * Updates a department. (STAFF only)
+   */
   @Security('api_key', ['STAFF'])
   @Put('')
-  public async update(@Body() body: DepartmentDto) {
+  public async update(@Body() body: UpdateDepartmentDto) {
     const result = await this.departmentService.update(body);
     if (result) {
       return new SuccessResponse(
-        'The department was updated successfully.',
+        'Department was updated successfully.',
         result
       );
     }
-    throw new BadRequestError('The department could not be updated.');
+    throw new BadRequestError('Department could not be updated.');
   }
 
+  /**
+   * Deletes a department. (STAFF only)
+   * @param id The id of department
+   */
   @Security('api_key', ['STAFF'])
   @Delete('{id}')
   public async delete(@Path() id: UUID) {
     const result = await this.departmentService.delete(id);
     if (result) {
       return new SuccessResponse(
-        'The department was deleted successfully.',
+        'Department was deleted successfully.',
         result
       );
     }
-    throw new BadRequestError('The department could not be deleted.');
+    throw new BadRequestError('Department could not be deleted.');
   }
 }
