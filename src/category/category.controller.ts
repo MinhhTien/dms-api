@@ -21,7 +21,7 @@ import { CategoryDto, CreateCategoryDto } from './dtos/category.dto';
 import { UUID } from '../type/global';
 
 @Tags('Category')
-@Route('category')
+@Route('categories')
 export class CategoryController extends Controller {
   private categoryService: CategoryService;
 
