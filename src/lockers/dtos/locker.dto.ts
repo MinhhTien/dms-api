@@ -10,8 +10,9 @@ export interface CreateLockerDto {
    * @isNumber
    * @minimum 1
    * @isInt
+   * @default 10
    */
-  capacity: number;
+  capacity?: number;
 
   room: {
     /**
@@ -40,5 +41,5 @@ export interface UpdateLockerDto {
    * @isInt
    * @default 10
    */
-  capacity?: number;
+  capacity: number;
 }

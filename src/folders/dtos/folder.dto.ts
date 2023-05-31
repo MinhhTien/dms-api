@@ -10,8 +10,9 @@ export interface CreateFolderDto {
    * @isNumber
    * @minimum 1
    * @isInt
+   * @default 10
    */
-  capacity: number;
+  capacity?: number;
 
   locker: {
     /**

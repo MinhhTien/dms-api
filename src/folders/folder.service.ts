@@ -58,7 +58,7 @@ export class FolderService {
             where: {
               locker: {
                 id: lockerId,
-              }
+              },
             },
           });
     } catch (error) {
@@ -107,8 +107,12 @@ export class FolderService {
         relations: ['documents'],
       });
       if (currentFolder) {
-        if (folder.capacity < currentFolder.documents.length) {
-          return 'Capacity must greater or equal to current number of documents.';
+        const currentNumOfPages = currentFolder.documents.reduce(
+          (sum, document) => sum + document.num_of_pages,
+          0
+        );
+        if (folder.capacity < currentNumOfPages) {
+          return 'Capacity must greater or equal to all current pages of documents.';
         }
       }
       const result = await this.folderRepository.update(
