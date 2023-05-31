@@ -38,6 +38,7 @@ export interface UpdateRoomDto {
    * @isNumber
    * @minimum 1
    * @isInt
+   * @default 10
    */
   capacity: number;
 }

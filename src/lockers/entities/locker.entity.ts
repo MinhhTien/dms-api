@@ -1,8 +1,9 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Room } from '../../rooms/entities/room.entity';
 import { Folder } from '../../folders/entities/folder.entity';
 
 @Entity()
+@Check('"capacity" > 0')
 export class Locker {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -14,6 +15,7 @@ export class Locker {
 
   @Column({
     type: 'integer',
+    default: 10
   })
   capacity: number;
 
