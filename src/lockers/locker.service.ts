@@ -1,9 +1,10 @@
 import { Locker } from './entities/locker.entity';
 import { AppDataSource } from '../database/data-source';
 import { UpdateLockerDto, CreateLockerDto } from './dtos/locker.dto';
-import { UUID } from 'type/global';
+import { UUID } from '../type/global';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
+import { Room } from '../rooms/entities/room.entity';
 
 @singleton()
 export class LockerService {
@@ -65,7 +66,7 @@ export class LockerService {
   public async create(lockerDto: CreateLockerDto) {
     try {
       // check if room has enough capacity
-      const room = await AppDataSource.getRepository('Room').findOne({
+      const room = await AppDataSource.getRepository(Room).findOne({
         where: {
           id: lockerDto.room.id,
         },

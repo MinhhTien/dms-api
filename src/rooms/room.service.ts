@@ -1,7 +1,7 @@
 import { Room } from './entities/room.entity';
 import { AppDataSource } from '../database/data-source';
 import { UpdateRoomDto, CreateRoomDto } from './dtos/room.dto';
-import { UUID } from 'type/global';
+import { UUID } from '../type/global';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 
