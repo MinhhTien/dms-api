@@ -1,6 +1,6 @@
 import { UUID } from '../../type/global';
 
-export interface CreateLockerDto {
+export interface CreateFolderDto {
   /**
    * @isString
    */
@@ -14,7 +14,7 @@ export interface CreateLockerDto {
    */
   capacity?: number;
 
-  room: {
+  locker: {
     /**
      * @isUUID
      * @isNotEmpty
@@ -24,7 +24,7 @@ export interface CreateLockerDto {
   };
 }
 
-export interface UpdateLockerDto {
+export interface UpdateFolderDto {
   /**
    * @isUUID
    */

@@ -18,6 +18,7 @@ export class Department {
 
   @OneToMany(() => Room, (room) => room.department)
   rooms: Room[];
+  
   @OneToMany(() => Category, (category) => category.department)
   categories: Category[];
 }

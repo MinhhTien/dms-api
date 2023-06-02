@@ -10,8 +10,9 @@ export interface CreateRoomDto {
    * @isNumber
    * @minimum 1
    * @isInt
+   * @default 10
    */
-  capacity: number;
+  capacity?: number;
 
   department: {
     /**
@@ -38,6 +39,7 @@ export interface UpdateRoomDto {
    * @isNumber
    * @minimum 1
    * @isInt
+   * @default 10
    */
   capacity: number;
 }

@@ -1,7 +1,7 @@
 import { Room } from './entities/room.entity';
 import { AppDataSource } from '../database/data-source';
 import { UpdateRoomDto, CreateRoomDto } from './dtos/room.dto';
-import { UUID } from 'type/global';
+import { UUID } from '../type/global';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 
@@ -104,9 +104,21 @@ export class RoomService {
   }
 
   public async delete(id: string) {
-    const result = await this.roomRepository.delete({
-      id: id,
-    });
-    return result.affected === 1;
+    try {
+      const result = await this.roomRepository.delete({
+        id: id,
+      });
+      return result.affected === 1;
+    } catch (error: any) {
+      console.log("====")
+      console.error(error?.code);
+      console.error(error?.driverError?.detail);
+      console.log("====")
+      if (error?.driverError?.detail?.includes('still referenced')) {
+        return 'Room already contains Lockers'
+      }
+      return false;
+    }
+    
   }
 }
