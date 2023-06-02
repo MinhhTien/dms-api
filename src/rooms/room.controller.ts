@@ -49,12 +49,12 @@ export class RoomController extends Controller {
   /**
    * Retrieves rooms (of department if departmentId is provided).
    * If user is EMPLOYEE, only get rooms of own department.
-   * @param departmentId (optional) The id of department (STAFF only)
+   * @param departmentId The id of department (STAFF only)
    */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('')
   @Response<Room[]>(200)
-  public async getMany(@Request() request: any, @Query() departmentId?: UUID) {
+  public async getMany(@Request() request: any, @Query() departmentId: UUID) {
     const departmentIdQuery =
       request.user.role === 'EMPLOYEE'
         ? request.user.departmentId
@@ -86,10 +86,12 @@ export class RoomController extends Controller {
   @Put('')
   public async update(@Body() body: UpdateRoomDto) {
     const result = await this.roomService.update(body);
-    if (result) {
+    if (result === true) {
       return new SuccessResponse('Room was updated successfully.', result);
     }
-    throw new BadRequestError('Room could not be updated.');
+    if (result === false)
+      throw new BadRequestError('Room could not be updated.');
+    else throw new BadRequestError(result);
   }
 
   /**
