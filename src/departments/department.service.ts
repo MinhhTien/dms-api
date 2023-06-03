@@ -33,6 +33,36 @@ export class DepartmentService {
     return await this.departmentRepository.find();
   }
 
+  public async getTree(departmentId?: UUID) {
+    try {
+      return departmentId
+        ? await this.departmentRepository.find({
+            where: {
+              id: departmentId,
+            },
+            relations: {
+              rooms: {
+                lockers: {
+                  folders: true,
+                },
+              },
+            },
+          })
+        : await this.departmentRepository.find({
+            relations: {
+              rooms: {
+                lockers: {
+                  folders: true,
+                },
+              },
+            },
+          });
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
   public async create(departmentDto: CreateDepartmentDto) {
     try {
       const department = this.departmentRepository.create(departmentDto);

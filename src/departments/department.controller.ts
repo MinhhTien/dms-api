@@ -10,6 +10,7 @@ import {
   Put,
   Delete,
   Response,
+  Request,
 } from 'tsoa';
 import { SuccessResponse, BadRequestError } from '../constants/response';
 import type { UUID } from '../type/global';
@@ -64,7 +65,10 @@ export class DepartmentController extends Controller {
   public async create(@Body() body: CreateDepartmentDto) {
     const result = await this.departmentService.create(body);
     if (result) {
-      return new SuccessResponse('Department was created successfully.', result);
+      return new SuccessResponse(
+        'Department was created successfully.',
+        result
+      );
     } else throw new BadRequestError('Department name is already existed.');
   }
 
@@ -99,5 +103,31 @@ export class DepartmentController extends Controller {
       );
     }
     throw new BadRequestError('Department could not be deleted.');
+  }
+}
+
+@injectable()
+@Tags('TreeDocument')
+@Route('trees')
+export class TreeDocument extends Controller {
+  constructor(private departmentService: DepartmentService) {
+    super();
+  }
+
+  /**
+   * Retrieves tree location.
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('')
+  @Response<SuccessResponse>(200)
+  public async getMany(@Request() request: any) {
+    return new SuccessResponse(
+      'Success',
+      await this.departmentService.getTree(
+        request.user.role === 'EMPLOYEE'
+          ? request.user.departmentId
+          : undefined
+      )
+    );
   }
 }
