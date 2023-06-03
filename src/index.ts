@@ -16,6 +16,7 @@ import {
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
 import { multerUpload } from './upload';
 import { MulterError } from 'multer';
+import { expressAuthentication } from './authentication';
 
 dotenv.config();
 
@@ -33,7 +34,21 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use('/static', express.static('uploads'))
+app.use(
+  '/static',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await expressAuthentication(req, 'api_key', [
+        'STAFF',
+        'EMPLOYEE',
+      ]);
+      next()
+    } catch (error) {
+      next(error);
+    }
+  },
+  express.static('uploads')
+);
 
 app.post('/documents/upload', multerUpload.single('file'));
 

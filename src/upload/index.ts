@@ -10,39 +10,31 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, callback) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    callback(
-      null,
-      uniqueSuffix +
-        '-' +
-        `${file.filename ? file.filename : file.originalname}`
-    );
+    const fileName = `${uniqueSuffix} - ${
+      file.filename ? file.filename : file.originalname
+    }`;
+    callback(null, fileName);
   },
 });
 
-const fileFilter: multer.Options["fileFilter"] = (
-  req,
-  file,
-  callback
-) => {
+const fileFilter: multer.Options['fileFilter'] = (req, file, callback) => {
   // The function should call `callback` with a boolean
   // to indicate if the file should be accepted
 
-  // To reject this file pass `false`, like so:
+  // To reject if this file type is not accepted:
   if (file.mimetype.match('application/pdf')) callback(null, true);
   else callback(new BadRequestError('File is not allowed'));
-
-  // To accept the file pass `true`, like so:
 
   // You can always pass an error if something goes wrong:
   //   callback(new Error("I don't have a clue!"));
 };
 
-const limits: multer.Options["limits"] = {
-  fileSize: 8*1024*1024 // 8MB
-}
+const limits: multer.Options['limits'] = {
+  fileSize: 8 * 1024 * 1024, // max size of file 8MB
+};
 
 export const multerUpload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: limits
+  limits: limits,
 });

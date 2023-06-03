@@ -2,12 +2,13 @@ import * as express from 'express';
 import { DecodedIdToken, getAuth } from 'firebase-admin/auth';
 import { UsersService } from '../users/users.service';
 import { UnauthorizedError, ForbiddenError } from '../constants/response';
+import { User } from 'users/entities/user.entity';
 
 export const expressAuthentication = async (
   request: express.Request,
   securityName: string,
   scopes: string[]
-): Promise<any> => {
+): Promise<User> => {
   if (securityName === 'api_key') {
     let token;
     if (request.headers['authentication']) {
