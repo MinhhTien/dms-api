@@ -1,6 +1,6 @@
 import { User } from './entities/user.entity';
 import { AppDataSource } from '../database/data-source';
-import { Status } from '../constants/enum';
+import { UserStatus } from '../constants/enum';
 
 // A post request should not contain an id.
 export type CreateUserDto = Pick<
@@ -13,7 +13,7 @@ export class UsersService {
     return await AppDataSource.getRepository(User).findOne({
       where: {
         email: email,
-        status: Status.ACTIVE,
+        status: UserStatus.ACTIVE,
       },
       relations: ['role', 'department'],
     });

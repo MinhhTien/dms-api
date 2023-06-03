@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Room } from '../../rooms/entities/room.entity';
-import { Category } from '../../category/entities/category.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
 export class Department {
