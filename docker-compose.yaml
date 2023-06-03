@@ -10,7 +10,7 @@ services:
     command:
       - /bin/sh
       - -c
-      - npm run start
+      - npm run connect-db && npm run start
     ports:
       - 8000:8000
       - 5432:5432
