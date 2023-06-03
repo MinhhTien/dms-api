@@ -29,7 +29,7 @@ jobs:
           instance_name: 'dms'
           zone: 'us-west4-b	'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-          command: 'echo Hello DMS Server && cd ../minhtienn1209/DMS-Server && ./deploy.sh'
+          command: 'git init && git clone git@github.com:DaiNghia0212/DocManagementSystemServer.git && cd ../minhtienn1209/DMS-Server && ./deploy.sh'
       - id: 'test'
         run: |-
           echo '${{ steps.compute-ssh.outputs.stdout }}'
