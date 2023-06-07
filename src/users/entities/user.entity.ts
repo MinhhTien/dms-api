@@ -49,10 +49,10 @@ export class User {
   department: Department;
 
   @OneToMany(() => ImportRequest, (importRequest) => importRequest.user)
-  importRequests: ImportRequest[];
+  import_requests: ImportRequest[];
 
   @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.user)
-  borrowRequests: BorrowRequest[];
+  borrow_requests: BorrowRequest[];
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];

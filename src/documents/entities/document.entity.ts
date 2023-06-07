@@ -63,8 +63,8 @@ export class Document {
   folder: Folder;
 
   @OneToMany(() => ImportRequest, (importRequest) => importRequest.document)
-  importRequests: ImportRequest[];
+  import_requests: ImportRequest[];
 
   @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.document)
-  borrowRequests: BorrowRequest[];
+  borrow_requests: BorrowRequest[];
 }

@@ -5,11 +5,11 @@ import { Request } from './request.entity';
 
 @Entity()
 export class ImportRequest extends Request {
-  @ManyToOne(() => Document, (document) => document.importRequests)
+  @ManyToOne(() => Document, (document) => document.import_requests)
   @JoinColumn({ name: 'document_id' })
   document: Document;
 
-  @ManyToOne(() => User, (user) => user.importRequests)
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.import_requests)
+  @JoinColumn({ name: 'created_by' })
   user: User;
 }

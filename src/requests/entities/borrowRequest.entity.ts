@@ -12,11 +12,11 @@ export class BorrowRequest extends Request {
   @Column({ type: 'integer', default: 1 })
   borrow_duration: number;
 
-  @ManyToOne(() => Document, (document) => document.borrowRequests)
+  @ManyToOne(() => Document, (document) => document.borrow_requests)
   @JoinColumn({ name: 'document_id' })
   document: Document;
 
-  @ManyToOne(() => User, (user) => user.borrowRequests)
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => User, (user) => user.borrow_requests)
+  @JoinColumn({ name: 'created_by' })
   user: User;
 }
