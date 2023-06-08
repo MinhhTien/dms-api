@@ -1,14 +1,18 @@
-import { Status } from '../../constants/enum';
+import { UserStatus } from '../../constants/enum';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Role } from './role.entity';
 import { Department } from '../../departments/entities/department.entity';
+import { ImportRequest } from '../../requests/entities/importRequest.entity';
+import { BorrowRequest } from '../../requests/entities/borrowRequest.entity';
+import { Notification } from '../../notifications/entities/notification.entity';
 
 @Entity()
 export class User {
@@ -30,8 +34,8 @@ export class User {
   @Column({ unique: true })
   phone: string;
 
-  @Column({ type: 'enum', enum: Status, default: Status.ACTIVE })
-  status: Status;
+  @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
+  status: UserStatus;
 
   @CreateDateColumn()
   created_at: Date;
@@ -43,4 +47,13 @@ export class User {
   @ManyToOne(() => Department, (department) => department.users)
   @JoinColumn({ name: 'department_id' })
   department: Department;
+
+  @OneToMany(() => ImportRequest, (importRequest) => importRequest.user)
+  import_requests: ImportRequest[];
+
+  @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.user)
+  borrow_requests: BorrowRequest[];
+
+  @OneToMany(() => Notification, (notification) => notification.user)
+  notifications: Notification[];
 }
