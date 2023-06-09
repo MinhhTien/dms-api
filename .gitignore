@@ -11,5 +11,6 @@ cloud-sql-proxy*
 
 src/routes.ts
 src/swagger.json
+src/migrations
 
-migrations
+uploads

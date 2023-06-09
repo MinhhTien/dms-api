@@ -4,7 +4,7 @@ import {
   UpdateDepartmentDto,
   CreateDepartmentDto,
 } from './dtos/department.dto';
-import { UUID } from 'type/global';
+import { UUID } from 'lib/global.type';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 

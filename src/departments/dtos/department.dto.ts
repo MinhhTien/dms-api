@@ -1,14 +1,14 @@
-import { UUID } from '../../type/global';
+import { UUID } from '../../lib/global.type';
 
 export interface CreateDepartmentDto {
   /**
-  * @isString
-  */
+   * @isString
+   */
   name: string;
 }
 export interface UpdateDepartmentDto extends CreateDepartmentDto {
   /**
-  * @isUUID
-  */
+   * @isUUID
+   */
   id: UUID;
 }

@@ -14,7 +14,7 @@ import {
   Query,
 } from 'tsoa';
 import { SuccessResponse, BadRequestError } from '../constants/response';
-import type { UUID } from '../type/global';
+import type { UUID } from '../lib/global.type';
 import { UpdateFolderDto, CreateFolderDto } from './dtos/folder.dto';
 import { injectable } from 'tsyringe';
 import { FolderService } from './folder.service';

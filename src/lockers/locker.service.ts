@@ -1,7 +1,7 @@
 import { Locker } from './entities/locker.entity';
 import { AppDataSource } from '../database/data-source';
 import { UpdateLockerDto, CreateLockerDto } from './dtos/locker.dto';
-import { UUID } from '../type/global';
+import { UUID } from '../lib/global.type';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Room } from '../rooms/entities/room.entity';

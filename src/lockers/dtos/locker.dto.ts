@@ -1,4 +1,4 @@
-import { UUID } from '../../type/global';
+import { UUID } from '../../lib/global.type';
 
 export interface CreateLockerDto {
   /**
@@ -28,7 +28,7 @@ export interface UpdateLockerDto {
   /**
    * @isUUID
    */
-  id: UUID
+  id: UUID;
 
   /**
    * @isString

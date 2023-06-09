@@ -5,7 +5,7 @@ import { UserStatus } from '../constants/enum';
 // A post request should not contain an id.
 export type CreateUserDto = Pick<
   User,
-  'email' | 'last_name' | 'first_name' | 'phone'
+  'email' | 'lastName' | 'firstName' | 'phone'
 >;
 
 export class UsersService {

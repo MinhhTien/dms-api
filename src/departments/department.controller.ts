@@ -13,7 +13,7 @@ import {
   Request,
 } from 'tsoa';
 import { SuccessResponse, BadRequestError } from '../constants/response';
-import type { UUID } from '../type/global';
+import type { UUID } from '../lib/global.type';
 import { DepartmentService } from '../departments/department.service';
 import {
   UpdateDepartmentDto,
@@ -124,9 +124,7 @@ export class TreeDocument extends Controller {
     return new SuccessResponse(
       'Success',
       await this.departmentService.getTree(
-        request.user.role === 'EMPLOYEE'
-          ? request.user.departmentId
-          : undefined
+        request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined
       )
     );
   }

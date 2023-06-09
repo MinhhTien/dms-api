@@ -14,7 +14,7 @@ import {
   Query,
 } from 'tsoa';
 import { SuccessResponse, BadRequestError } from '../constants/response';
-import type { UUID } from '../type/global';
+import type { UUID } from '../lib/global.type';
 import { RoomService } from '../rooms/room.service';
 import { UpdateRoomDto, CreateRoomDto } from './dtos/room.dto';
 import { Room } from './entities/room.entity';

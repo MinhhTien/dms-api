@@ -1,7 +1,7 @@
 import { Folder } from './entities/folder.entity';
 import { AppDataSource } from '../database/data-source';
 import { UpdateFolderDto, CreateFolderDto } from './dtos/folder.dto';
-import { UUID } from '../type/global';
+import { UUID } from '../lib/global.type';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Locker } from '../lockers/entities/locker.entity';
@@ -108,7 +108,7 @@ export class FolderService {
       });
       if (currentFolder) {
         const currentNumOfPages = currentFolder.documents.reduce(
-          (sum, document) => sum + document.num_of_pages,
+          (sum, document) => sum + document.numOfPages,
           0
         );
         if (folder.capacity < currentNumOfPages) {

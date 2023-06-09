@@ -14,7 +14,7 @@ import {
   Query,
 } from 'tsoa';
 import { SuccessResponse, BadRequestError } from '../constants/response';
-import type { UUID } from '../type/global';
+import type { UUID } from '../lib/global.type';
 import { UpdateLockerDto, CreateLockerDto } from './dtos/locker.dto';
 import { Locker } from './entities/locker.entity';
 import { injectable } from 'tsyringe';

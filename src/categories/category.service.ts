@@ -2,7 +2,7 @@ import { Repository } from 'typeorm';
 import { AppDataSource } from '../database/data-source';
 import { Category } from './entities/category.entity';
 import { CategoryDto, CreateCategoryDto } from './dtos/category.dto';
-import { UUID } from '../type/global';
+import { UUID } from '../lib/global.type';
 
 export class CategoryService {
   private categoryRepo: Repository<Category>;
