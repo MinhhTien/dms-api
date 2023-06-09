@@ -13,12 +13,9 @@ import {
   Query,
 } from 'tsoa';
 import { CategoryService } from './category.service';
-import {
-  BadRequestError,
-  SuccessResponse
-} from './../constants/response';
+import { BadRequestError, SuccessResponse } from './../constants/response';
 import { CategoryDto, CreateCategoryDto } from './dtos/category.dto';
-import { UUID } from '../type/global';
+import { UUID } from '../lib/global.type';
 
 @Tags('Category')
 @Route('categories')
@@ -34,9 +31,9 @@ export class CategoryController extends Controller {
   @Get('')
   @Response<SuccessResponse>(200)
   public async getAll(@Query() departmentId?: UUID) {
-    let categories: CategoryDto[]
+    let categories: CategoryDto[];
     if (departmentId) {
-      console.log(departmentId)
+      console.log(departmentId);
       categories = await this.categoryService.getByDepartment(departmentId);
     } else {
       categories = await this.categoryService.getAll();

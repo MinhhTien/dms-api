@@ -1,4 +1,4 @@
-import { UUID } from '../../type/global';
+import { UUID } from '../../lib/global.type';
 
 export interface CreateFolderDto {
   /**
@@ -28,7 +28,7 @@ export interface UpdateFolderDto {
   /**
    * @isUUID
    */
-  id: UUID
+  id: UUID;
 
   /**
    * @isString

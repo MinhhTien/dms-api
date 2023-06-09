@@ -24,7 +24,7 @@ export const expressAuthentication = async (
         if (!user) {
           return Promise.reject(new ForbiddenError('Access denied'));
         }
-        console.info(user);
+        console.info(user.id, user.email);
         if (!scopes.includes(user?.role?.name)) {
           return Promise.reject(new ForbiddenError('Not permitted'));
         }

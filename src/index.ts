@@ -14,9 +14,9 @@ import {
 } from './constants/response';
 
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
-import { multerUpload } from './upload';
+import { multerUpload } from './lib/upload';
 import { MulterError } from 'multer';
-import { expressAuthentication } from './authentication';
+import { expressAuthentication } from './lib/authentication';
 
 dotenv.config();
 
@@ -38,11 +38,8 @@ app.use(
   '/static',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await expressAuthentication(req, 'api_key', [
-        'STAFF',
-        'EMPLOYEE',
-      ]);
-      next()
+      await expressAuthentication(req, 'api_key', ['STAFF', 'EMPLOYEE']);
+      next();
     } catch (error) {
       next(error);
     }
@@ -50,7 +47,7 @@ app.use(
   express.static('uploads')
 );
 
-app.post('/documents/upload', multerUpload.single('file'));
+app.post('/documents/upload/:id', multerUpload.single('file'));
 
 initialize();
 RegisterRoutes(app);

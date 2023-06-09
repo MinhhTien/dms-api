@@ -19,8 +19,8 @@ export class Notification {
   @Column({ type: 'text' })
   description: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt: Date;
 
   @ManyToOne(() => User, (user) => user.notifications)
   @JoinColumn({ name: 'user_id' })

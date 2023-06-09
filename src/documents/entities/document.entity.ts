@@ -39,32 +39,37 @@ export class Document {
   })
   status: DocumentStatus;
 
-  @Column()
-  storage_url: string
+  @Column({name: 'storage_url', nullable: true})
+  storageUrl: string
 
   @Column({
     type: 'integer',
-    default: 1
+    default: 1,
+    name: 'num_of_pages',
   })
-  num_of_pages: number;
+  numOfPages: number;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({name: 'created_at', type: 'timestamptz'})
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({name: 'updated_at', type: 'timestamptz'})
+  updatedAt: Date;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'updated_by' })
-  updated_by: User
+  updatedBy: User
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'created_by' })
+  createdBy: User
 
   @ManyToOne(() => Folder, (folder) => folder.documents)
   @JoinColumn({ name: 'folder_id' })
   folder: Folder;
 
   @OneToMany(() => ImportRequest, (importRequest) => importRequest.document)
-  import_requests: ImportRequest[];
+  importRequests: ImportRequest[];
 
   @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.document)
-  borrow_requests: BorrowRequest[];
+  borrowRequests: BorrowRequest[];
 }

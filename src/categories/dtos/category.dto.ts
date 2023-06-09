@@ -1,4 +1,4 @@
-import { UUID } from "../../type/global";
+import { UUID } from '../../lib/global.type';
 
 export interface CategoryDto {
   id: UUID;

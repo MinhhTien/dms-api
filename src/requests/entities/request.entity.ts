@@ -21,21 +21,21 @@ export class Request {
 
   @Column({
     // set default expired time is 3 days
-    type: 'timestamp',
+    type: 'timestamptz',
     default: () => "current_timestamp + interval '3 days'",
   })
   expired_at: Date;
 
-  @Column({ type: 'text', nullable: true })
-  rejected_reason: string;
+  @Column({ type: 'text', nullable: true, name: 'rejected_reason' })
+  rejectedReason: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz'})
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz'})
+  updatedAt: Date;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'updated_by' })
-  updated_by: User;
+  updatedBy: User;
 }

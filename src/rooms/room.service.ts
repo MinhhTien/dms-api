@@ -1,7 +1,7 @@
 import { Room } from './entities/room.entity';
 import { AppDataSource } from '../database/data-source';
 import { UpdateRoomDto, CreateRoomDto } from './dtos/room.dto';
-import { UUID } from '../type/global';
+import { UUID } from '../lib/global.type';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 
@@ -56,15 +56,13 @@ export class RoomService {
       const room = this.roomRepository.create(roomDto);
       return await this.roomRepository.save(room);
     } catch (error: any) {
-      console.log("====")
+      console.log('====');
       console.error(error?.driverError?.detail);
-      console.log("====")
+      console.log('====');
       if (error?.driverError?.detail?.includes('already exists')) {
         return 'Room name is already existed.';
       }
-      if (
-        error?.driverError?.detail?.includes('is not present')
-      ) {
+      if (error?.driverError?.detail?.includes('is not present')) {
         return 'Department is not existed.';
       }
       return null;
@@ -93,9 +91,9 @@ export class RoomService {
       );
       return result.affected === 1;
     } catch (error: any) {
-      console.log("====")
+      console.log('====');
       console.error(error?.driverError?.detail);
-      console.log("====")
+      console.log('====');
       if (error?.driverError?.detail?.includes('already exists')) {
         return 'Room name is already existed.';
       }
@@ -110,15 +108,14 @@ export class RoomService {
       });
       return result.affected === 1;
     } catch (error: any) {
-      console.log("====")
+      console.log('====');
       console.error(error?.code);
       console.error(error?.driverError?.detail);
-      console.log("====")
+      console.log('====');
       if (error?.driverError?.detail?.includes('still referenced')) {
-        return 'Room already contains Lockers'
+        return 'Room already contains Lockers';
       }
       return false;
     }
-    
   }
 }

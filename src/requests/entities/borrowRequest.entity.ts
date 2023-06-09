@@ -6,17 +6,17 @@ import { Request } from './request.entity';
 @Entity()
 @Check('"borrow_duration" > 0')
 export class BorrowRequest extends Request {
-  @Column({ nullable: true })
-  start_date: Date;
+  @Column({ nullable: true, name: 'start_date', type: 'timestamptz'})
+  startDate: Date;
 
-  @Column({ type: 'integer', default: 1 })
-  borrow_duration: number;
+  @Column({ type: 'integer', default: 1, name: 'borrow_duration' })
+  borrowDuration: number;
 
-  @ManyToOne(() => Document, (document) => document.borrow_requests)
+  @ManyToOne(() => Document, (document) => document.borrowRequests)
   @JoinColumn({ name: 'document_id' })
   document: Document;
 
-  @ManyToOne(() => User, (user) => user.borrow_requests)
+  @ManyToOne(() => User, (user) => user.borrowRequests)
   @JoinColumn({ name: 'created_by' })
-  user: User;
+  createdBy: User;
 }

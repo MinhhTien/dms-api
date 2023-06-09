@@ -22,11 +22,11 @@ export class User {
   @Column()
   code: string;
 
-  @Column()
-  first_name: string;
+  @Column({name: 'first_name'})
+  firstName: string;
 
-  @Column()
-  last_name: string;
+  @Column({name: 'last_name'})
+  lastName: string;
 
   @Column({ unique: true })
   email: string;
@@ -37,8 +37,8 @@ export class User {
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({type: 'timestamptz', name: 'created_at'})
+  createdAt: Date;
 
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'role_id' })
@@ -48,11 +48,11 @@ export class User {
   @JoinColumn({ name: 'department_id' })
   department: Department;
 
-  @OneToMany(() => ImportRequest, (importRequest) => importRequest.user)
-  import_requests: ImportRequest[];
+  @OneToMany(() => ImportRequest, (importRequest) => importRequest.createdBy)
+  importRequests: ImportRequest[];
 
-  @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.user)
-  borrow_requests: BorrowRequest[];
+  @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.createdBy)
+  borrowRequests: BorrowRequest[];
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
