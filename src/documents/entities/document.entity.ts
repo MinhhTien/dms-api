@@ -12,8 +12,8 @@ import {
 import { Folder } from '../../folders/entities/folder.entity';
 import { DocumentStatus } from '../../constants/enum';
 import { User } from '../../users/entities/user.entity';
-import { ImportRequest } from '../../requests/entities/importRequest.entity';
-import { BorrowRequest } from '../../requests/entities/borrowRequest.entity';
+import { ImportRequest } from '../../import_requests/entities/import_request.entity';
+import { BorrowRequest } from '../../borrow_requests/entities/borrow_request.entity';
 import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
@@ -24,7 +24,7 @@ export class Document {
 
   @Column({
     unique: true,
-    nullable: false
+    nullable: false,
   })
   name: string;
 
@@ -40,8 +40,8 @@ export class Document {
   })
   status: DocumentStatus;
 
-  @Column({name: 'storage_url', nullable: true})
-  storageUrl: string
+  @Column({ name: 'storage_url', nullable: true })
+  storageUrl: string;
 
   @Column({
     type: 'integer',
@@ -50,19 +50,19 @@ export class Document {
   })
   numOfPages: number;
 
-  @CreateDateColumn({name: 'created_at', type: 'timestamptz'})
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn({name: 'updated_at', type: 'timestamptz'})
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'updated_by' })
-  updatedBy: User
+  updatedBy: User;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by' })
-  createdBy: User
+  createdBy: User;
 
   @ManyToOne(() => Folder, (folder) => folder.documents)
   @JoinColumn({ name: 'folder_id' })
