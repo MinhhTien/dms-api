@@ -10,8 +10,8 @@ import {
 } from 'typeorm';
 import { Role } from './role.entity';
 import { Department } from '../../departments/entities/department.entity';
-import { ImportRequest } from '../../requests/entities/importRequest.entity';
-import { BorrowRequest } from '../../requests/entities/borrowRequest.entity';
+import { ImportRequest } from '../../import_requests/entities/import_request.entity';
+import { BorrowRequest } from '../../borrow_requests/entities/borrow_request.entity';
 import { Notification } from '../../notifications/entities/notification.entity';
 
 @Entity()
@@ -22,10 +22,10 @@ export class User {
   @Column()
   code: string;
 
-  @Column({name: 'first_name'})
+  @Column({ name: 'first_name' })
   firstName: string;
 
-  @Column({name: 'last_name'})
+  @Column({ name: 'last_name' })
   lastName: string;
 
   @Column({ unique: true })
@@ -37,7 +37,7 @@ export class User {
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
 
-  @CreateDateColumn({type: 'timestamptz', name: 'created_at'})
+  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;
 
   @ManyToOne(() => Role, (role) => role.users)
