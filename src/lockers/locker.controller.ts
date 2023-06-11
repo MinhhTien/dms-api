@@ -43,7 +43,7 @@ export class LockerController extends Controller {
       request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get rooms of his department
     );
     if (result !== null) return new SuccessResponse('Success', result);
-    else throw new BadRequestError('Wrong locker id');
+    else throw new BadRequestError('Locker not existed.');
   }
 
   /**

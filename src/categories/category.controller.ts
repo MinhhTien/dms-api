@@ -74,7 +74,7 @@ export class CategoryController extends Controller {
     if (result) {
       return new SuccessResponse('Successfully update category', result);
     } else {
-      throw new BadRequestError('Fail to update category');
+      throw new BadRequestError('Failed to update category');
     }
   }
 
@@ -85,9 +85,9 @@ export class CategoryController extends Controller {
   public async delete(@Path() id: UUID) {
     const result = await this.categoryService.delete(id);
     if (result) {
-      return new SuccessResponse('Successfully delete category', result);
+      return new SuccessResponse('Delete category successfully', result);
     } else {
-      throw new BadRequestError('Fail to delete category');
+      throw new BadRequestError('Failed to delete category');
     }
   }
 }

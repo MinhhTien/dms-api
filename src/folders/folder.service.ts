@@ -81,7 +81,7 @@ export class FolderService {
           return 'Locker is full.';
         }
       } else {
-        return 'Locker is not existed.';
+        return 'Locker not existed.';
       }
 
       const folder = this.folderRepository.create(folderDto);

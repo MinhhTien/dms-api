@@ -14,6 +14,7 @@ import { DocumentStatus } from '../../constants/enum';
 import { User } from '../../users/entities/user.entity';
 import { ImportRequest } from '../../requests/entities/importRequest.entity';
 import { BorrowRequest } from '../../requests/entities/borrowRequest.entity';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
 @Check('"num_of_pages" > 0')
@@ -66,6 +67,10 @@ export class Document {
   @ManyToOne(() => Folder, (folder) => folder.documents)
   @JoinColumn({ name: 'folder_id' })
   folder: Folder;
+
+  @ManyToOne(() => Category, (category) => category.documents)
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 
   @OneToMany(() => ImportRequest, (importRequest) => importRequest.document)
   importRequests: ImportRequest[];

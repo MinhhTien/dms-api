@@ -41,7 +41,7 @@ export class DepartmentController extends Controller {
   public async getOne(@Path() id: UUID) {
     const result = await this.departmentService.getOne(id);
     if (result !== null) return new SuccessResponse('Success', result);
-    else throw new BadRequestError('Wrong department id');
+    else throw new BadRequestError('Department not existed.');
   }
 
   /**

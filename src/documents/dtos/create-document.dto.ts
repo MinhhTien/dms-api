@@ -1,5 +1,4 @@
 import { UUID } from '../../lib/global.type';
-
 export class CreateDocumentDto {
   /**
    * @isString
@@ -27,6 +26,15 @@ export class CreateDocumentDto {
    * @isString
    */
   folder: {
+    id: UUID;
+  };
+
+  /**
+   * @isUUID
+   * @isNotEmpty
+   * @isString
+   */
+   category: {
     id: UUID;
   };
 }

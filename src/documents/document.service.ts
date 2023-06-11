@@ -7,6 +7,7 @@ import { User } from '../users/entities/user.entity';
 import { Folder } from '../folders/entities/folder.entity';
 import { UUID } from '../lib/global.type';
 import { DocumentStatus } from '../constants/enum';
+import { Category } from '../categories/entities/category.entity';
 
 @singleton()
 export class DocumentService {
@@ -76,6 +77,24 @@ export class DocumentService {
 
   public async create(createDocumentDto: CreateDocumentDto, createdBy: User) {
     try {
+      // check if department contains category
+      const category = await AppDataSource.getRepository(Category).findOne({
+        where: {
+          id: createDocumentDto.category.id,
+          department: {
+            rooms: {
+              lockers: {
+                folders: {
+                  id: createDocumentDto.folder.id,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!category) {
+        return 'Category is not existed in this location.';
+      }
       // check if folder has enough capacity
       const folder = await AppDataSource.getRepository(Folder).findOne({
         where: {
@@ -92,10 +111,10 @@ export class DocumentService {
             createDocumentDto.numOfPages >
           folder.capacity
         ) {
-          return 'Folder does not have enough space.';
+          return 'Not have enough space in Folder.';
         }
       } else {
-        return 'Folder is not existed.';
+        return 'Folder not existed.';
       }
       const document = this.documentRepository.create(createDocumentDto);
       document.createdBy = createdBy;
@@ -113,7 +132,7 @@ export class DocumentService {
     }
   }
 
-  public async update(documentId: UUID, fileName: string) {
+  public async update(documentId: UUID, fileName: string, updatedBy: User) {
     try {
       const result = await this.documentRepository.update(
         {
@@ -121,6 +140,7 @@ export class DocumentService {
         },
         {
           storageUrl: fileName,
+          updatedBy: updatedBy,
         }
       );
       return result.affected === 1;

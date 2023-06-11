@@ -44,7 +44,7 @@ export class DocumentController extends Controller {
       request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get folder of his department
     );
     if (result !== null) return new SuccessResponse('Success', result);
-    else throw new BadRequestError('Wrong document id');
+    else throw new BadRequestError('Document not existed.');
   }
 
   /**
@@ -62,7 +62,7 @@ export class DocumentController extends Controller {
         ...result,
         barcode: uuidToBase64(result.id),
       });
-    else throw new BadRequestError('Wrong document id');
+    else throw new BadRequestError('Document not existed.');
   }
 
   /**
@@ -126,7 +126,7 @@ export class DocumentController extends Controller {
       fs.unlink(__dirname + '/../../uploads/' + file.filename, (err) => {
         if (err) console.log(err);
       });
-      throw new BadRequestError('Document not found');
+      throw new BadRequestError('Document not existed.');
     } else {
       if (document.storageUrl != null) {
         fs.unlink(
@@ -140,7 +140,8 @@ export class DocumentController extends Controller {
 
     const result = await this.documentService.update(
       document.id,
-      file.filename
+      file.filename,
+      request.user
     );
     if (result) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Failed to upload file of document.');

@@ -77,7 +77,7 @@ export class LockerService {
           return 'Room is full.';
         }
       } else {
-        return 'Room is not existed.';
+        return 'Room not existed.';
       }
 
       const locker = this.lockerRepository.create(lockerDto);

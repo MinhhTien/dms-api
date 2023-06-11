@@ -19,6 +19,7 @@ import { UpdateFolderDto, CreateFolderDto } from './dtos/folder.dto';
 import { injectable } from 'tsyringe';
 import { FolderService } from './folder.service';
 import { Folder } from './entities/folder.entity';
+import { uuidToBase64 } from '../lib/barcode';
 
 @injectable()
 @Tags('Folder')
@@ -43,8 +44,26 @@ export class FolderController extends Controller {
       request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get folder of his department
     );
     if (result !== null) return new SuccessResponse('Success', result);
-    else throw new BadRequestError('Wrong folder id');
+    else throw new BadRequestError('Folder not existed.');
   }
+
+    /**
+   * Retrieves folder QRcode.(STAFF only)
+   * @param id The id of folder
+   */
+    @Security('api_key', ['STAFF'])
+    @Get('/barcode/:id')
+    @Response<Folder>(200)
+    @Response<BadRequestError>(400)
+    public async getBarcode(@Path() id: UUID, @Request() request: any) {
+      const result = await this.folderService.getOne(id);
+      if (result !== null)
+        return new SuccessResponse('Success', {
+          ...result,
+          barcode: uuidToBase64(result.id),
+        });
+      else throw new BadRequestError('Folder not existed.');
+    }
 
   /**
    * Retrieves folders of locker.
