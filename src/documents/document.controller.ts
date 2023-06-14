@@ -20,6 +20,7 @@ import { Document } from './entities/document.entity';
 import { UUID } from '../lib/global.type';
 import fs from 'fs';
 import { base64toUUID, uuidToBase64 } from '../lib/barcode';
+import { ConfirmDocumentDto } from './dtos/confirm-document.dto';
 
 @injectable()
 @Tags('Document')
@@ -150,19 +151,18 @@ export class DocumentController extends Controller {
   /**
    * After scan location of document. Confirm document is located in correct place (STAFF only)
    */
-  @Post('confirm/:id')
+  @Post('confirm')
   @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
   public async confirm(
     @Request() request: any,
-    @Path() id: UUID,
-    @Body() locationQRcode: string
+    @Body() confirmDocumentDto: ConfirmDocumentDto
   ): Promise<any> {
-    console.log(base64toUUID(locationQRcode));
-    const folderId = base64toUUID(locationQRcode);
+    console.log(base64toUUID(confirmDocumentDto.locationQRcode));
+    const folderId = base64toUUID(confirmDocumentDto.locationQRcode);
 
     const result = await this.documentService.confirm(
-      id,
+      confirmDocumentDto.id,
       folderId,
       request.user
     );
