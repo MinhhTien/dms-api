@@ -27,6 +27,10 @@ export class CategoryController extends Controller {
     this.categoryService = new CategoryService();
   }
 
+  /**
+   * Retrieves all categories (in a department if provided).
+   * @param departmentId The id of department
+   */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('')
   @Response<SuccessResponse>(200)
@@ -41,6 +45,10 @@ export class CategoryController extends Controller {
     return new SuccessResponse('Success', categories);
   }
 
+  /**
+   * Retrieves a category.
+   * @param id The id of category
+   */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('{id}')
   @Response<SuccessResponse>(200)
@@ -57,6 +65,9 @@ export class CategoryController extends Controller {
     }
   }
 
+  /**
+   * Create new category.(STAFF only)
+   */
   @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
   @Post()
@@ -65,6 +76,9 @@ export class CategoryController extends Controller {
     return new SuccessResponse('Success', category);
   }
 
+  /**
+   * Update category.(STAFF only)
+   */
   @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
@@ -78,6 +92,10 @@ export class CategoryController extends Controller {
     }
   }
 
+  /**
+   * Delete category.(STAFF only)
+   * @param id The id of category
+   */
   @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
