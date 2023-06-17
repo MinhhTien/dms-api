@@ -28,8 +28,8 @@ export class CategoryController extends Controller {
   }
 
   /**
-   * Retrieves all categories (in a department if provided).
-   * @param departmentId The id of department
+   * Retrieves all categories.
+   * @param departmentId The id of department (optional)
    */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('')
