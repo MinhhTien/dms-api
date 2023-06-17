@@ -1,6 +1,6 @@
 import { AppDataSource } from '../database/data-source';
 import { singleton } from 'tsyringe';
-import { Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { Document } from './entities/document.entity';
 import { CreateDocumentDto } from './dtos/create-document.dto';
 import { User } from '../users/entities/user.entity';
@@ -8,6 +8,7 @@ import { Folder } from '../folders/entities/folder.entity';
 import { UUID } from '../lib/global.type';
 import { DocumentStatus } from '../constants/enum';
 import { Category } from '../categories/entities/category.entity';
+import { FindDocumentDto } from './dtos/find-document.dto';
 
 @singleton()
 export class DocumentService {
@@ -33,10 +34,30 @@ export class DocumentService {
                 },
               },
             },
+            relations: {
+              folder: {
+                locker: {
+                  room: {
+                    department: true,
+                  },
+                },
+              },
+              category: true,
+            },
           })
         : await this.documentRepository.findOne({
             where: {
               id: id,
+            },
+            relations: {
+              folder: {
+                locker: {
+                  room: {
+                    department: true,
+                  },
+                },
+              },
+              category: true,
             },
           });
     } catch (error) {
@@ -45,33 +66,54 @@ export class DocumentService {
     }
   }
 
-  public async getMany(folderId: UUID, departmentId?: UUID) {
+  public async getMany(
+    status: DocumentStatus[],
+    dto: FindDocumentDto,
+    departmentId?: UUID
+  ) {
+    const take = dto.take || 10;
+    const page = dto.page || 1;
+    const skip = (page - 1) * take;
+    const keyword = dto.keyword || '';
     try {
-      return departmentId
-        ? await this.documentRepository.find({
-            where: {
-              folder: {
-                id: folderId,
-                locker: {
-                  room: {
-                    department: {
-                      id: departmentId,
-                    },
+      const [result, total] = await this.documentRepository.findAndCount({
+        where: {
+          name: Like('%' + keyword + '%'),
+          folder: {
+            ...(departmentId && {
+              locker: {
+                room: {
+                  department: {
+                    id: departmentId,
                   },
                 },
               },
-            },
-          })
-        : await this.documentRepository.find({
-            where: {
-              folder: {
-                id: folderId,
+            }),
+            ...(dto.folderId && { id: dto.folderId }),
+          },
+          status: In(status),
+        },
+        relations: {
+          folder: {
+            locker: {
+              room: {
+                department: true,
               },
             },
-          });
+          },
+          category: true,
+        },
+        order: {
+          updatedAt: 'DESC',
+          createdAt: 'DESC',
+        },
+        take: take,
+        skip: skip,
+      });
+      return { data: result, total: total };
     } catch (error) {
       console.log(error);
-      return [];
+      return { data: [], total: 0 };
     }
   }
 

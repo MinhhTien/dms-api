@@ -11,7 +11,7 @@ import {
   Body,
   Path,
   Get,
-  Query,
+  Queries,
 } from 'tsoa';
 import { BadRequestError, SuccessResponse } from '../constants/response';
 import { injectable } from 'tsyringe';
@@ -21,6 +21,8 @@ import { UUID } from '../lib/global.type';
 import fs from 'fs';
 import { base64toUUID, uuidToBase64 } from '../lib/barcode';
 import { ConfirmDocumentDto } from './dtos/confirm-document.dto';
+import { DocumentStatus } from '../constants/enum';
+import { FindDocumentDto } from './dtos/find-document.dto';
 
 @injectable()
 @Tags('Document')
@@ -28,24 +30,6 @@ import { ConfirmDocumentDto } from './dtos/confirm-document.dto';
 export class DocumentController extends Controller {
   constructor(private documentService: DocumentService) {
     super();
-  }
-
-  /**
-   * Retrieves a document.
-   * If user is EMPLOYEE, only get document in own department.
-   * @param id The id of document
-   */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
-  @Get('/:id')
-  @Response<Document>(200)
-  @Response<BadRequestError>(400)
-  public async getOne(@Path() id: UUID, @Request() request: any) {
-    const result = await this.documentService.getOne(
-      id,
-      request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get folder of his department
-    );
-    if (result !== null) return new SuccessResponse('Success', result);
-    else throw new BadRequestError('Document not existed.');
   }
 
   /**
@@ -67,22 +51,55 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * Retrieves documents of folder.
-   * If user is EMPLOYEE, only get documents of folder in own department.
-   * @param documentId The id of document
+   * Retrieves stored documents. (AVAILABLE and BORROWED status)
+   * If user is EMPLOYEE, only get stored documents of folder in own department.
+   * @param folderId The id of folder (optional)
    */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('')
   @Response<Document[]>(200)
-  public async getMany(@Request() request: any, @Query() folderId: UUID) {
+  public async getMany(@Request() request: any, @Queries() dto: FindDocumentDto) {
     return new SuccessResponse(
       'Success',
       await this.documentService.getMany(
-        folderId,
+        [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED],
+        dto,
         request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined
       )
     );
   }
+
+  /**
+   * Retrieves pending documents waiting for confirmation. (PENDING status) (STAFF only)
+   * @param folderId The id of folder (optional)
+   */
+  @Security('api_key', ['STAFF'])
+  @Get('pending')
+  @Response<Document[]>(200)
+  public async getManyPending(@Queries() dto: FindDocumentDto) {
+    return new SuccessResponse(
+      'Success',
+      await this.documentService.getMany([DocumentStatus.PENDING], dto)
+    );
+  }
+
+    /**
+   * Retrieves a document.
+   * If user is EMPLOYEE, only get document in own department.
+   * @param id The id of document
+   */
+    @Security('api_key', ['STAFF', 'EMPLOYEE'])
+    @Get('/:id')
+    @Response<Document>(200)
+    @Response<BadRequestError>(400)
+    public async getOne(@Path() id: UUID, @Request() request: any) {
+      const result = await this.documentService.getOne(
+        id,
+        request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get folder of his department
+      );
+      if (result !== null) return new SuccessResponse('Success', result);
+      else throw new BadRequestError('Document not existed.');
+    }
 
   /**
    * Create new document (STAFF only)
