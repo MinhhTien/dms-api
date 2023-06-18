@@ -5,7 +5,10 @@
   "spec": {
     "outputDirectory": "./src",
     "specVersion": 3,
+    "version": "1.0.1",
     "name": "Document Management System",
+    "description": "Document Management System API",
+    "server": [ "http", "https" ],
     "securityDefinitions": {
       "api_key": {
         "type": "apiKey",
