@@ -106,6 +106,7 @@ export class ImportRequestController extends Controller {
 
   /**
    * Accept import request (STAFF only)
+   * @param id The id of import request
    */
   @Post('accept/:id')
   @Security('api_key', ['STAFF'])
@@ -144,6 +145,7 @@ export class ImportRequestController extends Controller {
 
   /**
    * Cancel import request (EMPLOYEE only)
+   * @param id The id of import request
    */
   @Post('cancel/:id')
   @Security('api_key', ['EMPLOYEE'])

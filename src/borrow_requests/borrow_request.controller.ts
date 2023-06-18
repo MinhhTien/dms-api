@@ -48,7 +48,6 @@ export class BorrowRequestController extends Controller {
 
   /**
    * Retrieves All Borrow Request of a document. (STAFF only)
-   * @param documentId The id of document (optional)
    */
   @Security('api_key', ['STAFF'])
   @Get('')
