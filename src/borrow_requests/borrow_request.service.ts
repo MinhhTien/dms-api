@@ -9,6 +9,7 @@ import { RequestStatus } from '../constants/enum';
 import { addDays } from '../lib/utils';
 import { UUID } from 'lib/global.type';
 import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
+import { FindBorrowRequestDto } from './dtos/find_borrow_request.dto';
 
 @singleton()
 export class BorrowRequestService {
@@ -57,46 +58,43 @@ export class BorrowRequestService {
 
   public async getOne(id: UUID, createdBy?: UUID) {
     try {
-      return createdBy
-        ? await this.borrowRequestRepository.findOne({
-            where: {
-              id: id,
-              createdBy: {
-                id: createdBy,
-              },
-            },
-          })
-        : await this.borrowRequestRepository.findOne({
-            where: {
-              id: id,
-            },
-          });
+      return await this.borrowRequestRepository.findOne({
+        where: {
+          id: id,
+          ...(createdBy && { createdBy: { id: createdBy } }),
+        },
+      });
     } catch (error) {
       console.log(error);
       return null;
     }
   }
 
-  public async getMany(documentId?: UUID, createdBy?: UUID) {
+  public async getMany(dto: FindBorrowRequestDto, createdBy?: UUID) {
+    const take = dto.take || 10;
+    const page = dto.page || 1;
+    const skip = (page - 1) * take;
     try {
-      return documentId
-        ? await this.borrowRequestRepository.find({
-            where: {
-              document: {
-                id: documentId,
-              }
-            },
-          })
-        : await this.borrowRequestRepository.find({
-            where: {
-              createdBy: {
-                id: createdBy,
-              }
-            },
-          });
+      const [result, total] = await this.borrowRequestRepository.findAndCount({
+        where: {
+          ...(dto.documentId && { document: { id: dto.documentId } }),
+          ...(createdBy && { createdBy: { id: createdBy } }),
+          ...(dto.status && { status: dto.status }),
+        },
+        relations: {
+          document: true,
+        },
+        order: {
+          updatedAt: 'DESC',
+          createdAt: 'DESC',
+        },
+        take: take,
+        skip: skip,
+      });
+      return { data: result, total: total };
     } catch (error) {
       console.log(error);
-      return [];
+      return { data: [], total: 0 };
     }
   }
 

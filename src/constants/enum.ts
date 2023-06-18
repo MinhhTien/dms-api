@@ -5,6 +5,7 @@ export enum UserStatus {
 }
 
 export enum DocumentStatus {
+  REQUESTING = 'REQUESTING',
   PENDING = 'PENDING',
   AVAILABLE = 'AVAILABLE',
   BORROWED = 'BORROWED',

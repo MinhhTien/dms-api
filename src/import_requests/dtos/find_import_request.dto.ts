@@ -1,10 +1,16 @@
-import { UUID } from '../../lib/global.type';
-export class FindDocumentDto {
+import { RequestStatus } from '../../constants/enum';
+export class FindImportRequestDto {
+  //   /**
+  //    * @isString
+  //    * @optional
+  //    */
+  //   keyword?: string;
+
   /**
-   * @isString
+   * Request status filter
    * @optional
    */
-  keyword?: string;
+  status?: RequestStatus;
 
   /**
    * Default 10
@@ -25,11 +31,4 @@ export class FindDocumentDto {
    * @optional
    */
   page?: number;
-
-  /**
-   * @isUUID
-   * @isString
-   * @optional
-   */
-  folderId?: UUID;
 }
