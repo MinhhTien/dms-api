@@ -30,6 +30,11 @@ export class ImportRequestService {
           id: id,
           ...(createdBy && { createdBy: { id: createdBy } }),
         },
+        relations: {
+          document: true,
+          createdBy: true,
+          updatedBy: true,
+        },
       });
     } catch (error) {
       console.log(error);
@@ -49,6 +54,8 @@ export class ImportRequestService {
         },
         relations: {
           document: true,
+          createdBy: true,
+          updatedBy: true,
         },
         order: {
           updatedAt: 'DESC',
