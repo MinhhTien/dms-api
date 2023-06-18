@@ -9,7 +9,7 @@ import {
   Body,
   Path,
   Get,
-  Query,
+  Queries,
 } from 'tsoa';
 import { BadRequestError, SuccessResponse } from '../constants/response';
 import { injectable } from 'tsyringe';
@@ -18,6 +18,7 @@ import { BorrowRequest } from './entities/borrow_request.entity';
 import { BorrowRequestService } from './borrow_request.service';
 import { UUID } from '../lib/global.type';
 import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
+import { FindBorrowRequestDto } from './dtos/find_borrow_request.dto';
 
 @injectable()
 @Tags('BorrowRequest')
@@ -47,15 +48,16 @@ export class BorrowRequestController extends Controller {
 
   /**
    * Retrieves All Borrow Request of a document. (STAFF only)
-   * @param documentId The id of document
    */
   @Security('api_key', ['STAFF'])
   @Get('')
   @Response<BorrowRequest[]>(200)
-  public async getManyOfDocument(@Query() documentId: UUID) {
+  public async getManyOfDocument(
+    @Queries() findBorrowRequestDto: FindBorrowRequestDto
+  ) {
     return new SuccessResponse(
       'Success',
-      await this.borrowRequestService.getMany(documentId)
+      await this.borrowRequestService.getMany(findBorrowRequestDto)
     );
   }
 
@@ -65,10 +67,17 @@ export class BorrowRequestController extends Controller {
   @Security('api_key', ['EMPLOYEE'])
   @Get('own')
   @Response<BorrowRequest[]>(200)
-  public async getOwnBorrowRequests(@Request() request: any) {
+  public async getOwnBorrowRequests(
+    @Request() request: any,
+    @Queries() findBorrowRequestDto: FindBorrowRequestDto
+  ) {
+    findBorrowRequestDto.documentId = undefined;
     return new SuccessResponse(
       'Success',
-      await this.borrowRequestService.getMany(undefined, request.user.id)
+      await this.borrowRequestService.getMany(
+        findBorrowRequestDto,
+        request.user.id
+      )
     );
   }
 
