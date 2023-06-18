@@ -4,18 +4,25 @@ import { UsersService } from '../users/users.service';
 import { UnauthorizedError, ForbiddenError } from '../constants/response';
 import { User } from 'users/entities/user.entity';
 
-let inactivityTimeout: NodeJS.Timeout;
+const userInactivityTimeouts: Map<string, NodeJS.Timeout> = new Map();
 const timeout = 60 * 60 * 1000; // 1 hours
 
 // Function to start the inactivity timeout
-const startInactivityTimeout = (timeoutAction: () => Promise<void>) => {
-  inactivityTimeout = setTimeout(timeoutAction, timeout);
+const startInactivityTimeout = (
+  uid: string,
+  timeoutAction: () => Promise<void>
+) => {
+  const inactivityTimeout = setTimeout(timeoutAction, timeout);
+  userInactivityTimeouts.set(uid, inactivityTimeout);
 };
 
 // Function to reset the inactivity timeout
-const resetInactivityTimeout = (timeoutAction: () => Promise<void>) => {
-  clearTimeout(inactivityTimeout);
-  startInactivityTimeout(timeoutAction);
+const resetInactivityTimeout = (
+  uid: string,
+  timeoutAction: () => Promise<void>
+) => {
+  clearTimeout(userInactivityTimeouts.get(uid));
+  startInactivityTimeout(uid, timeoutAction);
 };
 
 // Function to handle user activity
@@ -25,12 +32,12 @@ const handleUserActivity = (uid: string) => {
   const timeoutAction = async () => {
     await getAuth().revokeRefreshTokens(uid);
     const userRecord = await getAuth().getUser(uid);
-    const revokedTime = new Date(
-      userRecord.tokensValidAfterTime as string
-    ).getUTCDate();
-    console.log(`Tokens revoked at: ${revokedTime}`);
+    const revokedTime = new Date(userRecord.tokensValidAfterTime as string);
+    console.log(
+      `Firebase User:\n\tuid: ${uid}\n\temail: ${userRecord.email}\nTokens revoked at: ${revokedTime}`
+    );
   };
-  resetInactivityTimeout(timeoutAction);
+  resetInactivityTimeout(uid, timeoutAction);
   // Perform additional actions based on user activity
 };
 
