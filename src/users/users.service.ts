@@ -50,7 +50,6 @@ export class UsersService {
         relations: ['role', 'department'],
       });
       if (user === null) return null;
-      console.log(user);
       const userRecord = await getAuth().getUserByEmail(user.email);
       console.log(`Successfully fetched user data: ${userRecord.photoURL}`);
       return {
