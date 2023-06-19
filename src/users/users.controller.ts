@@ -38,7 +38,7 @@ export class UsersController extends Controller {
     else return new BadRequestError('Login fail');
   }
 
-  //@Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('profile/:id')
   public async getProfile(
     @Path() id: UUID,
