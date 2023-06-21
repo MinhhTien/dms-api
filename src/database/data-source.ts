@@ -17,4 +17,5 @@ export const AppDataSource = new DataSource({
   logging: ['error', 'warn', 'log'],
   entities: [path.resolve(__dirname + '/../**/*.entity{.js,.ts}')],
   migrations: [path.resolve(__dirname + '/../migrations', '*{.js,.ts}')],
+  cache: true,
 });

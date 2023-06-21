@@ -30,7 +30,7 @@ export class DepartmentService {
   }
 
   public async getAll() {
-    return await this.departmentRepository.find();
+    return await this.departmentRepository.find({ cache: 60000 });
   }
 
   public async getTree(departmentId?: UUID) {
@@ -47,6 +47,7 @@ export class DepartmentService {
                 },
               },
             },
+            cache: 60000,
           })
         : await this.departmentRepository.find({
             relations: {
@@ -56,6 +57,7 @@ export class DepartmentService {
                 },
               },
             },
+            cache: 60000,
           });
     } catch (error) {
       console.log(error);
