@@ -10,6 +10,7 @@ import { UUID } from 'lib/global.type';
 import { RejectImportRequestDto } from './dtos/reject_import_request.dto';
 import { Folder } from '../folders/entities/folder.entity';
 import { FindImportRequestDto } from './dtos/find_import_request.dto';
+import { uuidToBase64 } from '../lib/barcode';
 
 @singleton()
 export class ImportRequestService {
@@ -64,7 +65,17 @@ export class ImportRequestService {
         take: take,
         skip: skip,
       });
-      return { data: result, total: total };
+      return {
+        data: result.map((importRequest: ImportRequest) => {
+          return {
+            ...importRequest,
+            ...(importRequest.status === RequestStatus.APPROVED && {
+              qrcode: uuidToBase64(importRequest.id),
+            }),
+          };
+        }),
+        total: total,
+      };
     } catch (error) {
       console.log(error);
       return { data: [], total: 0 };

@@ -7,6 +7,7 @@ import {
 import { UUID } from 'lib/global.type';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
+import { DocumentStatus } from '../constants/enum';
 
 @singleton()
 export class DepartmentService {
@@ -35,34 +36,32 @@ export class DepartmentService {
 
   public async getTree(departmentId?: UUID) {
     try {
-      return departmentId
-        ? await this.departmentRepository.find({
-            where: {
-              id: departmentId,
-            },
-            relations: {
-              rooms: {
-                lockers: {
-                  folders: {
-                    documents: true
-                  }
-                },
+      let tree = await this.departmentRepository.find({
+        where: {
+          ...(departmentId && { id: departmentId }),
+        },
+        relations: {
+          rooms: {
+            lockers: {
+              folders: {
+                documents: true,
               },
             },
-            cache: 60000,
-          })
-        : await this.departmentRepository.find({
-            relations: {
-              rooms: {
-                lockers: {
-                  folders: {
-                    documents: true
-                  }
-                },
-              },
-            },
-            cache: 60000,
+          },
+        },
+      });
+      tree.forEach((department) => {
+        return department.rooms.forEach((room) => {
+          return room.lockers.forEach((locker) => {
+            return locker.folders.forEach((folder) => {
+              folder.documents = folder.documents.filter(
+                (document) => [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(document.status)
+              );
+            });
           });
+        });
+      });
+      return tree;
     } catch (error) {
       console.log(error);
       return [];
