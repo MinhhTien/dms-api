@@ -10,6 +10,7 @@ import { addDays } from '../lib/utils';
 import { UUID } from 'lib/global.type';
 import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
 import { FindBorrowRequestDto } from './dtos/find_borrow_request.dto';
+import { uuidToBase64 } from '../lib/barcode';
 
 @singleton()
 export class BorrowRequestService {
@@ -67,7 +68,7 @@ export class BorrowRequestService {
           document: true,
           createdBy: true,
           updatedBy: true,
-        }
+        },
       });
     } catch (error) {
       console.log(error);
@@ -98,7 +99,17 @@ export class BorrowRequestService {
         take: take,
         skip: skip,
       });
-      return { data: result, total: total };
+      return {
+        data: result.map((borrowRequest: BorrowRequest) => {
+          return {
+            ...borrowRequest,
+            ...(borrowRequest.status === RequestStatus.APPROVED && {
+              qrcode: uuidToBase64(borrowRequest.id),
+            }),
+          };
+        }),
+        total: total,
+      };
     } catch (error) {
       console.log(error);
       return { data: [], total: 0 };
