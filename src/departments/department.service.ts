@@ -30,7 +30,7 @@ export class DepartmentService {
   }
 
   public async getAll() {
-    return await this.departmentRepository.find({ cache: 60000 });
+    return await this.departmentRepository.find();
   }
 
   public async getTree(departmentId?: UUID) {
@@ -43,7 +43,9 @@ export class DepartmentService {
             relations: {
               rooms: {
                 lockers: {
-                  folders: true,
+                  folders: {
+                    documents: true
+                  }
                 },
               },
             },
@@ -53,7 +55,9 @@ export class DepartmentService {
             relations: {
               rooms: {
                 lockers: {
-                  folders: true,
+                  folders: {
+                    documents: true
+                  }
                 },
               },
             },
