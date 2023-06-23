@@ -34,6 +34,9 @@ export class User {
   @Column({ unique: true })
   phone: string;
 
+  @Column({ name: 'photo_url', nullable: true })
+  photoURL: string;
+
   @Column({ type: 'enum', enum: UserStatus, default: UserStatus.ACTIVE })
   status: UserStatus;
 

@@ -1,7 +1,6 @@
 import { User } from './entities/user.entity';
 import { AppDataSource } from '../database/data-source';
 import { UserStatus } from '../constants/enum';
-import { getAuth } from 'firebase-admin/auth';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { UUID } from '../lib/global.type';
@@ -12,10 +11,6 @@ export type CreateUserDto = Pick<
   'email' | 'lastName' | 'firstName' | 'phone'
 >;
 
-export type UserProfile = User & {
-  photoURL?: string;
-};
-
 @singleton()
 export class UsersService {
   private userRepository: Repository<User>;
@@ -24,7 +19,7 @@ export class UsersService {
     this.userRepository = AppDataSource.getRepository(User);
   }
 
-  public async get(email: string): Promise<UserProfile | null> {
+  public async get(email: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: {
         email: email,
@@ -33,14 +28,10 @@ export class UsersService {
       relations: ['role', 'department'],
     });
     if (user === null) return null;
-    const userRecord = await getAuth().getUserByEmail(user.email);
-    return {
-      photoURL: userRecord.photoURL,
-      ...user,
-    };
+    return user
   }
 
-  public async getProfile(id: UUID): Promise<UserProfile | null> {
+  public async getProfile(id: UUID): Promise<User | null> {
     try {
       const user = await this.userRepository.findOne({
         where: {
@@ -50,12 +41,7 @@ export class UsersService {
         relations: ['role', 'department'],
       });
       if (user === null) return null;
-      const userRecord = await getAuth().getUserByEmail(user.email);
-      console.log(`Successfully fetched user data: ${userRecord.photoURL}`);
-      return {
-        photoURL: userRecord.photoURL,
-        ...user,
-      };
+      return user
     } catch (error) {
       console.log('Error fetching user data:', error);
       return null;
