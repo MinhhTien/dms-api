@@ -16,7 +16,11 @@ services:
       - 5432:5432
     networks:
       - dms_net
+    volumes:
+      - dms-upload:/DMS-Server/uploads
     
 networks:
   dms_net:
     driver: bridge
+volumes:
+  dms-upload:
