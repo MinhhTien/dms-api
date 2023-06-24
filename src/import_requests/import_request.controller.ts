@@ -53,7 +53,10 @@ export class ImportRequestController extends Controller {
   ) {
     return new SuccessResponse(
       'Success',
-      await this.importRequestService.getMany(findImportRequestDto, request.user.id)
+      await this.importRequestService.getMany(
+        findImportRequestDto,
+        request.user.id
+      )
     );
   }
 
@@ -69,7 +72,7 @@ export class ImportRequestController extends Controller {
   public async getOne(@Path() id: UUID, @Request() request: any) {
     const result = await this.importRequestService.getOne(
       id,
-      request.user.role === 'EMPLOYEE' ? request.user.id : undefined
+      request.user.role.name === 'EMPLOYEE' ? request.user.id : undefined
     );
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Import Request not existed.');

@@ -23,6 +23,7 @@ import { base64toUUID, uuidToBase64 } from '../lib/barcode';
 import { ConfirmDocumentDto } from './dtos/confirm-document.dto';
 import { DocumentStatus } from '../constants/enum';
 import { FindDocumentDto } from './dtos/find-document.dto';
+import { resolve } from 'path';
 
 @injectable()
 @Tags('Document')
@@ -41,7 +42,11 @@ export class DocumentController extends Controller {
   @Response<Document>(200)
   @Response<BadRequestError>(400)
   public async getBarcode(@Path() id: UUID, @Request() request: any) {
-    const result = await this.documentService.getOne(id);
+    const result = await this.documentService.getOne(id, [
+      DocumentStatus.PENDING,
+      DocumentStatus.AVAILABLE,
+      DocumentStatus.BORROWED,
+    ]);
     if (result !== null)
       return new SuccessResponse('Success', {
         ...result,
@@ -58,13 +63,18 @@ export class DocumentController extends Controller {
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('')
   @Response<Document[]>(200)
-  public async getMany(@Request() request: any, @Queries() dto: FindDocumentDto) {
+  public async getMany(
+    @Request() request: any,
+    @Queries() dto: FindDocumentDto
+  ) {
     return new SuccessResponse(
       'Success',
       await this.documentService.getMany(
         [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED],
         dto,
-        request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined
+        request.user.role.name === 'EMPLOYEE'
+          ? request.user.department.id
+          : undefined
       )
     );
   }
@@ -83,23 +93,32 @@ export class DocumentController extends Controller {
     );
   }
 
-    /**
+  /**
    * Retrieves a document.
    * If user is EMPLOYEE, only get document in own department.
    * @param id The id of document
    */
-    @Security('api_key', ['STAFF', 'EMPLOYEE'])
-    @Get('/:id')
-    @Response<Document>(200)
-    @Response<BadRequestError>(400)
-    public async getOne(@Path() id: UUID, @Request() request: any) {
-      const result = await this.documentService.getOne(
-        id,
-        request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get folder of his department
-      );
-      if (result !== null) return new SuccessResponse('Success', result);
-      else throw new BadRequestError('Document not existed.');
-    }
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('/:id')
+  @Response<Document>(200)
+  @Response<BadRequestError>(400)
+  public async getOne(@Path() id: UUID, @Request() request: any) {
+    const result = (request.user.role = 'EMPLOYEE'
+      ? await this.documentService.getOne(
+          id,
+          [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED],
+          undefined,
+          request.user.department.id
+        )
+      : await this.documentService.getOne(id, [
+          DocumentStatus.AVAILABLE,
+          DocumentStatus.BORROWED,
+          DocumentStatus.PENDING,
+          DocumentStatus.REQUESTING,
+        ]));
+    if (result !== null) return new SuccessResponse('Success', result);
+    else throw new BadRequestError('Document not existed.');
+  }
 
   /**
    * Create new document (STAFF only)
@@ -125,10 +144,11 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * Upload pdf file for document (STAFF only)
+   * Upload pdf file for document
+   * if employee, only upload file for pending document of own import request
    */
   @Post('upload/:id')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Response<SuccessResponse>(200)
   public async upload(
     @Request() request: any,
@@ -136,10 +156,18 @@ export class DocumentController extends Controller {
     @UploadedFile() file: Express.Multer.File
   ): Promise<any> {
     console.log(file);
-    const document = await this.documentService.getOne(
-      id,
-      request.user.departmentId
-    );
+    const document = (request.user.role = 'EMPLOYEE'
+      ? await this.documentService.getOne(
+          id,
+          [DocumentStatus.REQUESTING],
+          request.user,
+          request.user.department.id
+        )
+      : await this.documentService.getOne(id, [
+          DocumentStatus.AVAILABLE,
+          DocumentStatus.BORROWED,
+          DocumentStatus.PENDING,
+        ]));
     if (document == null) {
       fs.unlink(__dirname + '/../../uploads/' + file.filename, (err) => {
         if (err) console.log(err);
@@ -189,5 +217,79 @@ export class DocumentController extends Controller {
       throw new BadRequestError(
         'Failed to confirm document is placed in correct place.'
       );
+  }
+}
+
+@injectable()
+@Tags('Media')
+@Route('media')
+export class StaticController extends Controller {
+  constructor(private documentService: DocumentService) {
+    super();
+  }
+
+  /**
+   * Retrieves a static file of document.
+   * If user is EMPLOYEE, only get document in own department.
+   * @param id The id of document
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('/:id')
+  @Response<Document>(200)
+  @Response<BadRequestError>(400)
+  public async getMedia(@Path() id: string, @Request() request: any) {
+    const document = (request.user.role = 'EMPLOYEE'
+      ? await this.documentService.getOne(
+          id,
+          [
+            DocumentStatus.AVAILABLE,
+            DocumentStatus.BORROWED,
+            DocumentStatus.REQUESTING,
+          ],
+          undefined,
+          request.user.department.id,
+          true
+        )
+      : await this.documentService.getOne(
+          id,
+          [
+            DocumentStatus.AVAILABLE,
+            DocumentStatus.BORROWED,
+            DocumentStatus.PENDING,
+            DocumentStatus.REQUESTING,
+          ],
+          undefined,
+          undefined,
+          true
+        ));
+    if (document == null) throw new BadRequestError('Document not existed.');
+    if (document.storageUrl == null)
+      throw new BadRequestError('File not existed.');
+    const filePath = resolve(
+      __dirname,
+      '../../',
+      'uploads',
+      document.storageUrl
+    );
+    const response = request.res;
+    if (!fs.existsSync(filePath)) {
+      throw new BadRequestError('File not found.');
+    }
+    if (response) {
+      response.setHeader('Content-Type', 'application/pdf');
+      response.setHeader('Content-Length', fs.statSync(filePath).size);
+      response.setHeader('Accept-Ranges', 'bytes');
+
+      const readStream = fs.createReadStream(filePath);
+
+      readStream.pipe(response);
+      await new Promise<void>((resolve, reject) => {
+        readStream.on('end', () => {
+          response.end();
+          resolve();
+        });
+      });
+    }
+    throw new BadRequestError('Error.');
   }
 }

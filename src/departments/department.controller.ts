@@ -124,7 +124,9 @@ export class TreeDocument extends Controller {
     return new SuccessResponse(
       'Success',
       await this.departmentService.getTree(
-        request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined
+        request.user.role.name === 'EMPLOYEE'
+          ? request.user.department.id
+          : undefined
       )
     );
   }
