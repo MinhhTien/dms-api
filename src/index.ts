@@ -17,6 +17,8 @@ import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
 import { multerUpload } from './lib/upload';
 import { MulterError } from 'multer';
 import { expressAuthentication } from './lib/authentication';
+import { createClient } from 'redis';
+import { RedisClientType } from '@redis/client';
 
 dotenv.config();
 
@@ -25,10 +27,18 @@ initializeApp({
 });
 
 const app: Express = express();
-const port = process.env.PORT || 8000;
+const port = parseInt(process.env.PORT || '8000');
+const redisClient: RedisClientType = createClient({
+  username: process.env.REDIS_USERNAME || 'default',
+  password: process.env.REDIS_PASSWORD || '',
+  socket: {
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: parseInt(process.env.REDIS_PORT || '6379'),
+  },
+});
 
 const corsOptions = {
-  origin: '*',
+  origin: process.env.CORS_ORIGIN || '*',
 };
 
 app.use(cors(corsOptions));
@@ -120,6 +130,15 @@ app.use((req, res: Response) => {
   });
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
+  redisClient.on('error', (error) =>
+    console.error(`Error from redis : ${error}`)
+  );
+
+  await redisClient.connect();
+
+  console.log(`🔥[cache]: Redis is connected`);
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
+
+export { redisClient };
