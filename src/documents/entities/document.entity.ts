@@ -40,7 +40,7 @@ export class Document {
   })
   status: DocumentStatus;
 
-  @Column({ name: 'storage_url', nullable: true })
+  @Column({ name: 'storage_url', nullable: true, select: false })
   storageUrl: string;
 
   @Column({

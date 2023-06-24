@@ -16,7 +16,6 @@ import {
 import serviceAccount from '../dms-firebase-adminsdk-service-account.json';
 import { multerUpload } from './lib/upload';
 import { MulterError } from 'multer';
-import { expressAuthentication } from './lib/authentication';
 import { createClient } from 'redis';
 import { RedisClientType } from '@redis/client';
 
@@ -46,13 +45,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
   '/static',
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await expressAuthentication(req, 'api_key', ['STAFF', 'EMPLOYEE']);
-      next();
-    } catch (error) {
-      next(error);
-    }
+  (req: Request, res: Response, next: NextFunction) => {
+    throw new ForbiddenError('Not implemented');
   },
   express.static('uploads')
 );

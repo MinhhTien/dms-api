@@ -40,7 +40,9 @@ export class LockerController extends Controller {
   public async getOne(@Path() id: UUID, @Request() request: any) {
     const result = await this.lockerService.getOne(
       id,
-      request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get rooms of his department
+      request.user.role.name === 'EMPLOYEE'
+        ? request.user.department.id
+        : undefined // if user is employee, only get rooms of his department
     );
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Locker not existed.');
@@ -59,7 +61,9 @@ export class LockerController extends Controller {
       'Success',
       await this.lockerService.getMany(
         roomId,
-        request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined
+        request.user.role.name === 'EMPLOYEE'
+          ? request.user.department.id
+          : undefined
       )
     );
   }

@@ -41,29 +41,31 @@ export class FolderController extends Controller {
   public async getOne(@Path() id: UUID, @Request() request: any) {
     const result = await this.folderService.getOne(
       id,
-      request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get folder of his department
+      request.user.role.name === 'EMPLOYEE'
+        ? request.user.department.id
+        : undefined // if user is employee, only get folder of his department
     );
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Folder not existed.');
   }
 
-    /**
+  /**
    * Retrieves folder QRcode.(STAFF only)
    * @param id The id of folder
    */
-    @Security('api_key', ['STAFF'])
-    @Get('/barcode/:id')
-    @Response<Folder>(200)
-    @Response<BadRequestError>(400)
-    public async getBarcode(@Path() id: UUID, @Request() request: any) {
-      const result = await this.folderService.getOne(id);
-      if (result !== null)
-        return new SuccessResponse('Success', {
-          ...result,
-          barcode: uuidToBase64(result.id),
-        });
-      else throw new BadRequestError('Folder not existed.');
-    }
+  @Security('api_key', ['STAFF'])
+  @Get('/barcode/:id')
+  @Response<Folder>(200)
+  @Response<BadRequestError>(400)
+  public async getBarcode(@Path() id: UUID, @Request() request: any) {
+    const result = await this.folderService.getOne(id);
+    if (result !== null)
+      return new SuccessResponse('Success', {
+        ...result,
+        barcode: uuidToBase64(result.id),
+      });
+    else throw new BadRequestError('Folder not existed.');
+  }
 
   /**
    * Retrieves folders of locker.
@@ -78,7 +80,9 @@ export class FolderController extends Controller {
       'Success',
       await this.folderService.getMany(
         lockerId,
-        request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined
+        request.user.role.name === 'EMPLOYEE'
+          ? request.user.department.id
+          : undefined
       )
     );
   }

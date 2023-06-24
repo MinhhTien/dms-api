@@ -40,7 +40,9 @@ export class RoomController extends Controller {
   public async getOne(@Path() id: UUID, @Request() request: any) {
     const result = await this.roomService.getOne(
       id,
-      request.user.role === 'EMPLOYEE' ? request.user.departmentId : undefined // if user is employee, only get rooms of his department
+      request.user.role.name === 'EMPLOYEE'
+        ? request.user.department.id
+        : undefined // if user is employee, only get rooms of his department
     );
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Room not existed.');
@@ -56,8 +58,8 @@ export class RoomController extends Controller {
   @Response<Room[]>(200)
   public async getMany(@Request() request: any, @Query() departmentId: UUID) {
     const departmentIdQuery =
-      request.user.role === 'EMPLOYEE'
-        ? request.user.departmentId
+      request.user.role.name === 'EMPLOYEE'
+        ? request.user.department.id
         : departmentId;
     return new SuccessResponse(
       'Success',

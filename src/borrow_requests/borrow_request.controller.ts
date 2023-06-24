@@ -40,7 +40,7 @@ export class BorrowRequestController extends Controller {
   public async getOne(@Path() id: UUID, @Request() request: any) {
     const result = await this.borrowRequestService.getOne(
       id,
-      request.user.role === 'EMPLOYEE' ? request.user.id : undefined
+      request.user.role.name === 'EMPLOYEE' ? request.user.id : undefined
     );
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Borrow Request not existed.');

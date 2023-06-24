@@ -18,48 +18,56 @@ export class DocumentService {
     this.documentRepository = AppDataSource.getRepository(Document);
   }
 
-  public async getOne(id: UUID, departmentId?: UUID) {
+  public async getOne(
+    id: UUID,
+    status?: DocumentStatus[],
+    createdBy?: User,
+    departmentId?: UUID,
+    withStorageUrl?: boolean
+  ) {
     try {
-      return departmentId
-        ? await this.documentRepository.findOne({
-            where: {
-              id: id,
-              folder: {
-                locker: {
-                  room: {
-                    department: {
-                      id: departmentId,
-                    },
+      return await this.documentRepository.findOne({
+        where: {
+          id: id,
+          ...(departmentId && {
+            folder: {
+              locker: {
+                room: {
+                  department: {
+                    id: departmentId,
                   },
                 },
               },
             },
-            relations: {
-              folder: {
-                locker: {
-                  room: {
-                    department: true,
-                  },
-                },
+          }),
+          ...(status && { status: In(status) }),
+          ...(createdBy && { createdBy: createdBy }),
+        },
+        relations: {
+          folder: {
+            locker: {
+              room: {
+                department: true,
               },
-              category: true,
             },
-          })
-        : await this.documentRepository.findOne({
-            where: {
-              id: id,
-            },
-            relations: {
-              folder: {
-                locker: {
-                  room: {
-                    department: true,
-                  },
-                },
-              },
-              category: true,
-            },
-          });
+          },
+          category: true,
+          createdBy: true,
+          updatedBy: true,
+        },
+        ...(withStorageUrl && {
+          select: [
+            'id',
+            'name',
+            'description',
+            'status',
+            'numOfPages',
+            'createdAt',
+            'updatedAt',
+            'storageUrl',
+          ],
+        }),
+      });
     } catch (error) {
       console.log(error);
       return null;
