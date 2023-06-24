@@ -5,7 +5,7 @@ import { UnauthorizedError, ForbiddenError } from '../constants/response';
 import { User } from '../users/entities/user.entity';
 import { redisClient } from '../index';
 
-const timeout = 60 * 60; // 1 hours
+const timeout = parseInt(process.env.TIMEOUT || '60') * 60;
 
 export const expressAuthentication = async (
   request: express.Request,
