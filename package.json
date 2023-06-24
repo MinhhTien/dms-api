@@ -23,6 +23,7 @@
       "firebase-admin": "^11.8.0",
       "multer": "^1.4.3",
       "pg": "^8.11.0",
+      "redis": "^4.6.7",
       "reflect-metadata": "^0.1.13",
       "swagger-ui-express": "^4.6.3",
       "tsyringe": "^4.7.0",
