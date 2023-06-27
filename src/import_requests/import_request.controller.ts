@@ -124,6 +124,23 @@ export class ImportRequestController extends Controller {
     else throw new BadRequestError(result);
   }
 
+    /**
+   * Verify accepted import request (STAFF only)
+   * @param id The id of import request
+   */
+    @Post('verify/:id')
+    @Security('api_key', ['STAFF'])
+    @Response<SuccessResponse>(200)
+    public async verify(@Request() request: any, @Path() id: UUID) {
+      const result = await this.importRequestService.verify(id, request.user);
+  
+      if (result instanceof ImportRequest)
+        return new SuccessResponse('Success', true);
+      if (result == null)
+        throw new BadRequestError('Failed to verify import request.');
+      else throw new BadRequestError(result);
+    }
+
   /**
    * Reject import request (STAFF only)
    */

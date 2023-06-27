@@ -5,7 +5,7 @@ import { User } from '../users/entities/user.entity';
 import { BorrowRequest } from './entities/borrow_request.entity';
 import { CreateBorrowRequestDto } from './dtos/create_borrow_request.dto';
 import { Document } from '../documents/entities/document.entity';
-import { RequestStatus } from '../constants/enum';
+import { DocumentStatus, RequestStatus } from '../constants/enum';
 import { addDays } from '../lib/utils';
 import { UUID } from 'lib/global.type';
 import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
@@ -59,7 +59,7 @@ export class BorrowRequestService {
 
   public async getOne(id: UUID, createdBy?: UUID) {
     try {
-      return await this.borrowRequestRepository.findOne({
+      const result = await this.borrowRequestRepository.findOne({
         where: {
           id: id,
           ...(createdBy && { createdBy: { id: createdBy } }),
@@ -70,6 +70,12 @@ export class BorrowRequestService {
           updatedBy: true,
         },
       });
+      return result?.status === RequestStatus.APPROVED && createdBy
+        ? {
+            ...result,
+            qrcode: uuidToBase64(result.id),
+          }
+        : result;
     } catch (error) {
       console.log(error);
       return null;
@@ -100,14 +106,16 @@ export class BorrowRequestService {
         skip: skip,
       });
       return {
-        data: result.map((borrowRequest: BorrowRequest) => {
-          return {
-            ...borrowRequest,
-            ...(borrowRequest.status === RequestStatus.APPROVED && {
-              qrcode: uuidToBase64(borrowRequest.id),
-            }),
-          };
-        }),
+        data: createdBy
+          ? result.map((borrowRequest: BorrowRequest) => {
+              return {
+                ...borrowRequest,
+                ...(borrowRequest.status === RequestStatus.APPROVED && {
+                  qrcode: uuidToBase64(borrowRequest.id),
+                }),
+              };
+            })
+          : result,
         total: total,
       };
     } catch (error) {
@@ -177,6 +185,7 @@ export class BorrowRequestService {
           },
         },
       });
+
       if (!borrowRequest) {
         return 'Borrow Request not existed';
       }
@@ -198,6 +207,33 @@ export class BorrowRequestService {
     }
   }
 
+  public async verify(id: UUID, updatedBy: User) {
+    try {
+      const borrowRequest = await this.borrowRequestRepository.findOne({
+        where: {
+          id: id,
+          status: RequestStatus.APPROVED,
+        },
+        relations: {
+          document: true,
+        },
+      });
+
+      if (!borrowRequest) {
+        return 'Borrow Request not existed';
+      }
+
+      borrowRequest.status = RequestStatus.DONE;
+      borrowRequest.updatedBy = updatedBy;
+      borrowRequest.document.status = DocumentStatus.BORROWED;
+      const result = await this.borrowRequestRepository.save(borrowRequest);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
   public async reject(
     rejectBorrowRequestDto: RejectBorrowRequestDto,
     updatedBy: User
@@ -207,11 +243,6 @@ export class BorrowRequestService {
         where: {
           id: rejectBorrowRequestDto.id,
           status: RequestStatus.PENDING,
-        },
-        relations: {
-          document: {
-            borrowRequests: true,
-          },
         },
       });
       if (!borrowRequest) {
@@ -235,13 +266,12 @@ export class BorrowRequestService {
         where: {
           id: id,
           status: RequestStatus.PENDING,
-        },
-        relations: {
-          document: {
-            borrowRequests: true,
+          createdBy: {
+            id: updatedBy.id,
           },
         },
       });
+
       if (!borrowRequest) {
         return 'Borrow Request not existed';
       }
