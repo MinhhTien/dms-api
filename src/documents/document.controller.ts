@@ -103,7 +103,8 @@ export class DocumentController extends Controller {
   @Response<Document>(200)
   @Response<BadRequestError>(400)
   public async getOne(@Path() id: UUID, @Request() request: any) {
-    const result = (request.user.role.name = 'EMPLOYEE'
+    console.log(request.user.role.name === 'EMPLOYEE')
+    const result = (request.user.role.name === 'EMPLOYEE'
       ? await this.documentService.getOne(
           id,
           [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED],
@@ -156,7 +157,7 @@ export class DocumentController extends Controller {
     @UploadedFile() file: Express.Multer.File
   ): Promise<any> {
     console.log(file);
-    const document = (request.user.role.name = 'EMPLOYEE'
+    const document = (request.user.role.name === 'EMPLOYEE'
       ? await this.documentService.getOne(
           id,
           [DocumentStatus.REQUESTING],
@@ -238,7 +239,7 @@ export class StaticController extends Controller {
   @Response<Document>(200)
   @Response<BadRequestError>(400)
   public async getMedia(@Path() id: string, @Request() request: any) {
-    const document = (request.user.role.name = 'EMPLOYEE'
+    const document = (request.user.role.name === 'EMPLOYEE'
       ? await this.documentService.getOne(
           id,
           [
