@@ -21,7 +21,8 @@ export const expressAuthentication = async (
     if (token) {
       try {
         const decodedToken: DecodedIdToken = await getAuth().verifyIdToken(
-          token as string
+          token as string,
+          true
         );
         const cachedUser = await redisClient.get(decodedToken.uid);
 
