@@ -103,7 +103,6 @@ export class DocumentController extends Controller {
   @Response<Document>(200)
   @Response<BadRequestError>(400)
   public async getOne(@Path() id: UUID, @Request() request: any) {
-    console.log(request.user.role.name === 'EMPLOYEE')
     const result = (request.user.role.name === 'EMPLOYEE'
       ? await this.documentService.getOne(
           id,
