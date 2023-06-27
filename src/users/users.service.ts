@@ -63,4 +63,31 @@ export class UsersService {
       return false;
     }
   }
+
+  public async getAll() {
+    try {
+      const users = await this.userRepository.find({
+        where: {
+          status: UserStatus.ACTIVE,
+        },
+      });
+      return users;
+    } catch (error) {
+      console.log('Error fetching user data:', error);
+      return null;
+    }
+  }
+
+  public async update(id: UUID, user: any) {
+    try {
+      const result = await this.userRepository.update(id, 
+        {
+          photoURL: user.photoURL,
+        });
+      return result.affected;
+    } catch (error) {
+      console.log('Error fetching user data:', error);
+      return null;
+    }
+  }
 }
