@@ -4,6 +4,8 @@ import { UserStatus } from '../constants/enum';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { UUID } from '../lib/global.type';
+import { getAuth } from 'firebase-admin/auth';
+import { redisClient } from '../index';
 
 // A post request should not contain an id.
 export type CreateUserDto = Pick<
@@ -28,7 +30,7 @@ export class UsersService {
       relations: ['role', 'department'],
     });
     if (user === null) return null;
-    return user
+    return user;
   }
 
   public async getProfile(id: UUID): Promise<User | null> {
@@ -41,10 +43,24 @@ export class UsersService {
         relations: ['role', 'department'],
       });
       if (user === null) return null;
-      return user
+      return user;
     } catch (error) {
       console.log('Error fetching user data:', error);
       return null;
+    }
+  }
+
+  public async revokeRefreshToken(email: string): Promise<boolean> {
+    try {
+      const userRecord = await getAuth().getUserByEmail(email);
+      Promise.all([
+        getAuth().revokeRefreshTokens(userRecord.uid),
+        redisClient.del(userRecord.uid),
+      ]);
+      return true;
+    } catch (error) {
+      console.log('Error revoking refresh token:', error);
+      return false;
     }
   }
 }

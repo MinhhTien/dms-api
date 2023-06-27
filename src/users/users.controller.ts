@@ -1,4 +1,4 @@
-import { Controller, Get, Route, Security, Tags, Request, Path } from 'tsoa';
+import { Controller, Get, Route, Security, Tags, Request, Path, Post } from 'tsoa';
 import { User } from './entities/user.entity';
 import { SuccessResponse, BadRequestError } from '../constants/response';
 import { injectable } from 'tsyringe';
@@ -47,5 +47,13 @@ export class UsersController extends Controller {
     const result = await this.userService.getProfile(id);
     if (result !== null) return new SuccessResponse('Success', result);
     else return new BadRequestError('Fail to get profile');
+  }
+
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Post('revoke-refresh-token')
+  public async revokeRefreshToken(@Request() request: any) {
+    const result = await this.userService.revokeRefreshToken(request.user.email);
+    if (result) return new SuccessResponse('Success', result);
+    else return new BadRequestError('Fail to revoke refresh token');
   }
 }
