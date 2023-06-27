@@ -6,7 +6,7 @@ import { Request } from './request.entity';
 @Entity()
 export class ImportRequest extends Request {
   @ManyToOne(() => Document, (document) => document.importRequests, {
-    cascade: ['insert'],
+    cascade: ['insert', 'update'],
   })
   @JoinColumn({ name: 'document_id' })
   document: Document;
