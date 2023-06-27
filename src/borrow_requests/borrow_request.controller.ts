@@ -121,6 +121,23 @@ export class BorrowRequestController extends Controller {
   }
 
   /**
+   * Verify accepted borrow request (STAFF only)
+   * @param id The id of borrow request
+   */
+  @Post('verify:id')
+  @Security('api_key', ['STAFF'])
+  @Response<SuccessResponse>(200)
+  public async verify(@Request() request: any, @Path() id: UUID) {
+    const result = await this.borrowRequestService.verify(id, request.user);
+
+    if (result instanceof BorrowRequest)
+      return new SuccessResponse('Success', true);
+    if (result == null)
+      throw new BadRequestError('Failed to verify accepted borrow request.');
+    else throw new BadRequestError(result);
+  }
+
+  /**
    * Reject borrow request (STAFF only)
    */
   @Post('reject')

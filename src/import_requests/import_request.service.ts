@@ -26,7 +26,7 @@ export class ImportRequestService {
 
   public async getOne(id: UUID, createdBy?: UUID) {
     try {
-      return await this.importRequestRepository.findOne({
+      const result = await this.importRequestRepository.findOne({
         where: {
           id: id,
           ...(createdBy && { createdBy: { id: createdBy } }),
@@ -37,6 +37,12 @@ export class ImportRequestService {
           updatedBy: true,
         },
       });
+      return result?.status === RequestStatus.APPROVED && createdBy
+        ? {
+            ...result,
+            qrcode: uuidToBase64(result.id),
+          }
+        : result;
     } catch (error) {
       console.log(error);
       return null;
@@ -66,14 +72,16 @@ export class ImportRequestService {
         skip: skip,
       });
       return {
-        data: result.map((importRequest: ImportRequest) => {
-          return {
-            ...importRequest,
-            ...(importRequest.status === RequestStatus.APPROVED && {
-              qrcode: uuidToBase64(importRequest.id),
-            }),
-          };
-        }),
+        data: createdBy
+          ? result.map((importRequest: ImportRequest) => {
+              return {
+                ...importRequest,
+                ...(importRequest.status === RequestStatus.APPROVED && {
+                  qrcode: uuidToBase64(importRequest.id),
+                }),
+              };
+            })
+          : result,
         total: total,
       };
     } catch (error) {
@@ -158,15 +166,42 @@ export class ImportRequestService {
             status: DocumentStatus.REQUESTING,
           },
         },
-        relations: {
-          document: true,
-        },
       });
+
       if (!importRequest) {
         return 'Import Request not existed';
       }
 
       importRequest.status = RequestStatus.APPROVED;
+      importRequest.updatedBy = updatedBy;
+      const result = await this.importRequestRepository.save(importRequest);
+      return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  public async verify(id: UUID, updatedBy: User) {
+    try {
+      const importRequest = await this.importRequestRepository.findOne({
+        where: {
+          id: id,
+          status: RequestStatus.APPROVED,
+          document: {
+            status: DocumentStatus.REQUESTING,
+          },
+        },
+        relations: {
+          document: true,
+        },
+      });
+
+      if (!importRequest) {
+        return 'Import Request not existed';
+      }
+
+      importRequest.status = RequestStatus.DONE;
       importRequest.updatedBy = updatedBy;
       importRequest.document.status = DocumentStatus.PENDING;
       const result = await this.importRequestRepository.save(importRequest);
@@ -190,10 +225,8 @@ export class ImportRequestService {
             status: DocumentStatus.REQUESTING,
           },
         },
-        relations: {
-          document: true,
-        },
       });
+
       if (!importRequest) {
         return 'Import Request not existed';
       }
@@ -218,9 +251,6 @@ export class ImportRequestService {
           document: {
             status: DocumentStatus.REQUESTING,
           },
-        },
-        relations: {
-          document: true,
         },
       });
       if (!importRequest) {
