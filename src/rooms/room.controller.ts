@@ -106,9 +106,11 @@ export class RoomController extends Controller {
   public async delete(@Path() id: UUID) {
     // need validate if room has lockers
     const result = await this.roomService.delete(id);
-    if (result === true) {
+    if (result === true)
       return new SuccessResponse('Room was deleted successfully.', result);
-    }
-    throw new BadRequestError('Room could not be deleted.');
+
+    if (result === false)
+      throw new BadRequestError('Room could not be deleted.');
+    throw new BadRequestError(result);
   }
 }

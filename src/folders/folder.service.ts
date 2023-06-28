@@ -135,9 +135,20 @@ export class FolderService {
   }
 
   public async delete(id: string) {
-    const result = await this.folderRepository.delete({
-      id: id,
-    });
-    return result.affected === 1;
+    try {
+      const result = await this.folderRepository.delete({
+        id: id,
+      });
+      return result.affected === 1;
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.code);
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('still referenced')) {
+        return 'Folder already contains Documents';
+      }
+      return false;
+    }
   }
 }

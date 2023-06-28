@@ -127,9 +127,11 @@ export class FolderController extends Controller {
   public async delete(@Path() id: UUID) {
     // need validate if folder has documents
     const result = await this.folderService.delete(id);
-    if (result) {
+    if (result === true) {
       return new SuccessResponse('Folder was deleted successfully.', result);
     }
-    throw new BadRequestError('Folder could not be deleted.');
+    if (result === false)
+      throw new BadRequestError('Folder could not be deleted.');
+    throw new BadRequestError(result);
   }
 }

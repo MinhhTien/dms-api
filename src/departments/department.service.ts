@@ -54,8 +54,10 @@ export class DepartmentService {
         return department.rooms.forEach((room) => {
           return room.lockers.forEach((locker) => {
             return locker.folders.forEach((folder) => {
-              folder.documents = folder.documents.filter(
-                (document) => [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(document.status)
+              folder.documents = folder.documents.filter((document) =>
+                [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(
+                  document.status
+                )
               );
             });
           });
@@ -94,9 +96,20 @@ export class DepartmentService {
   }
 
   public async delete(id: string) {
-    const result = await AppDataSource.getRepository(Department).delete({
-      id: id,
-    });
-    return result.affected === 1;
+    try {
+      const result = await AppDataSource.getRepository(Department).delete({
+        id: id,
+      });
+      return result.affected === 1;
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.code);
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('still referenced')) {
+        return 'Department already contains Rooms';
+      }
+      return false;
+    }
   }
 }
