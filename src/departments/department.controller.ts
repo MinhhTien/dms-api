@@ -96,13 +96,15 @@ export class DepartmentController extends Controller {
   @Delete('{id}')
   public async delete(@Path() id: UUID) {
     const result = await this.departmentService.delete(id);
-    if (result) {
+    if (result === true) {
       return new SuccessResponse(
         'Department was deleted successfully.',
         result
       );
     }
-    throw new BadRequestError('Department could not be deleted.');
+    if (result === false)
+      throw new BadRequestError('Department could not be deleted.');
+    throw new BadRequestError(result);
   }
 }
 

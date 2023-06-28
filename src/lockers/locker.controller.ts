@@ -108,9 +108,11 @@ export class LockerController extends Controller {
   public async delete(@Path() id: UUID) {
     // need validate if locker has folders
     const result = await this.lockerService.delete(id);
-    if (result) {
+    if (result === true) {
       return new SuccessResponse('Locker was deleted successfully.', result);
     }
-    throw new BadRequestError('Locker could not be deleted.');
+    if (result === false)
+      throw new BadRequestError('Locker could not be deleted.');
+    throw new BadRequestError(result);
   }
 }
