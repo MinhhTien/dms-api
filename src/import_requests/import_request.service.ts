@@ -32,7 +32,18 @@ export class ImportRequestService {
           ...(createdBy && { createdBy: { id: createdBy } }),
         },
         relations: {
-          document: true,
+          document: {
+            folder: {
+              locker: {
+                room: {
+                  department: true,
+                },
+              },
+            },
+            category: true,
+            createdBy: true,
+            updatedBy: true,
+          },
           createdBy: true,
           updatedBy: true,
         },
@@ -60,7 +71,18 @@ export class ImportRequestService {
           ...(dto.status && { status: dto.status }),
         },
         relations: {
-          document: true,
+          document: {
+            folder: {
+              locker: {
+                room: {
+                  department: true,
+                },
+              },
+            },
+            category: true,
+            createdBy: true,
+            updatedBy: true,
+          },
           createdBy: true,
           updatedBy: true,
         },
