@@ -29,24 +29,6 @@ export class BorrowRequestController extends Controller {
   }
 
   /**
-   * Retrieves a borrow request.
-   * If user is EMPLOYEE, only retrieves own borrow request.
-   * @param id The id of borrow request
-   */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
-  @Get('/:id')
-  @Response<BorrowRequest>(200)
-  @Response<BadRequestError>(400)
-  public async getOne(@Path() id: UUID, @Request() request: any) {
-    const result = await this.borrowRequestService.getOne(
-      id,
-      request.user.role.name === 'EMPLOYEE' ? request.user.id : undefined
-    );
-    if (result !== null) return new SuccessResponse('Success', result);
-    else throw new BadRequestError('Borrow Request not existed.');
-  }
-
-  /**
    * Retrieves All Borrow Request of a document. (STAFF only)
    */
   @Security('api_key', ['STAFF'])
@@ -79,6 +61,24 @@ export class BorrowRequestController extends Controller {
         request.user.id
       )
     );
+  }
+
+  /**
+   * Retrieves a borrow request.
+   * If user is EMPLOYEE, only retrieves own borrow request.
+   * @param id The id of borrow request
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('/:id')
+  @Response<BorrowRequest>(200)
+  @Response<BadRequestError>(400)
+  public async getOne(@Path() id: UUID, @Request() request: any) {
+    const result = await this.borrowRequestService.getOne(
+      id,
+      request.user.role.name === 'EMPLOYEE' ? request.user.id : undefined
+    );
+    if (result !== null) return new SuccessResponse('Success', result);
+    else throw new BadRequestError('Borrow Request not existed.');
   }
 
   /**
