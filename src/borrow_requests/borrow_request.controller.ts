@@ -19,6 +19,8 @@ import { BorrowRequestService } from './borrow_request.service';
 import { UUID } from '../lib/global.type';
 import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
 import { FindBorrowRequestDto } from './dtos/find_borrow_request.dto';
+import { VerifyBorrowRequestDto } from './dtos/verify_borrow_request.dto';
+import { base64toUUID } from '../lib/barcode';
 
 @injectable()
 @Tags('BorrowRequest')
@@ -124,11 +126,13 @@ export class BorrowRequestController extends Controller {
    * Verify accepted borrow request (STAFF only)
    * @param id The id of borrow request
    */
-  @Post('verify:id')
+  @Post('verify')
   @Security('api_key', ['STAFF'])
   @Response<SuccessResponse>(200)
-  public async verify(@Request() request: any, @Path() id: UUID) {
-    const result = await this.borrowRequestService.verify(id, request.user);
+  public async verify(@Request() request: any, @Body() verifyBorrowRequestDto: VerifyBorrowRequestDto) {
+    console.log(base64toUUID(verifyBorrowRequestDto.QRCode));
+    const borrowRequestId = base64toUUID(verifyBorrowRequestDto.QRCode);
+    const result = await this.borrowRequestService.verify(borrowRequestId, request.user);
 
     if (result instanceof BorrowRequest)
       return new SuccessResponse('Success', true);

@@ -18,4 +18,5 @@ export enum RequestStatus {
   REJECTED = 'REJECTED',
   CANCELED = 'CANCELED',
   DONE = 'DONE',
+  EXPIRED = 'EXPIRED'
 }
