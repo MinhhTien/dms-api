@@ -23,3 +23,12 @@ export interface CreateCategoryDto {
     id: UUID;
   };
 }
+
+export interface UpdateCategoryDto {
+  id: UUID;
+
+  /**
+   * @isString
+   */
+  name: string;
+}
