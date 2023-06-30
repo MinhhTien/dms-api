@@ -19,6 +19,8 @@ import { ImportRequestService } from './import_request.service';
 import { UUID } from '../lib/global.type';
 import { RejectImportRequestDto } from './dtos/reject_import_request.dto';
 import { FindImportRequestDto } from './dtos/find_import_request.dto';
+import { VerifyImportRequestDto } from './dtos/verify_import_request.dto';
+import { base64toUUID } from '../lib/barcode';
 
 @injectable()
 @Tags('ImportRequest')
@@ -124,22 +126,30 @@ export class ImportRequestController extends Controller {
     else throw new BadRequestError(result);
   }
 
-    /**
+  /**
    * Verify accepted import request (STAFF only)
    * @param id The id of import request
    */
-    @Post('verify/:id')
-    @Security('api_key', ['STAFF'])
-    @Response<SuccessResponse>(200)
-    public async verify(@Request() request: any, @Path() id: UUID) {
-      const result = await this.importRequestService.verify(id, request.user);
-  
-      if (result instanceof ImportRequest)
-        return new SuccessResponse('Success', true);
-      if (result == null)
-        throw new BadRequestError('Failed to verify import request.');
-      else throw new BadRequestError(result);
-    }
+  @Post('verify')
+  @Security('api_key', ['STAFF'])
+  @Response<SuccessResponse>(200)
+  public async verify(
+    @Request() request: any,
+    @Body() verifyImportRequestDto: VerifyImportRequestDto
+  ) {
+    console.log(base64toUUID(verifyImportRequestDto.QRCode));
+    const importRequestId = base64toUUID(verifyImportRequestDto.QRCode);
+    const result = await this.importRequestService.verify(
+      importRequestId,
+      request.user
+    );
+
+    if (result instanceof ImportRequest)
+      return new SuccessResponse('Success', true);
+    if (result == null)
+      throw new BadRequestError('Failed to verify import request.');
+    else throw new BadRequestError(result);
+  }
 
   /**
    * Reject import request (STAFF only)

@@ -22,7 +22,7 @@ export class Request {
   @Column({
     // set default expired time is 3 days
     type: 'timestamptz',
-    default: () => "current_timestamp + 3* interval '1 day'",
+    default: () => "now() + interval '3 day'",
   })
   expired_at: Date;
 
