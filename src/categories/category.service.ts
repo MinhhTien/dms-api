@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import { AppDataSource } from '../database/data-source';
 import { Category } from './entities/category.entity';
-import { CategoryDto, CreateCategoryDto } from './dtos/category.dto';
+import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from './dtos/category.dto';
 import { UUID } from '../lib/global.type';
 
 export class CategoryService {
@@ -42,7 +42,7 @@ export class CategoryService {
     }
   }
 
-  public async update(categoryDto: CategoryDto): Promise<boolean> {
+  public async update(categoryDto: UpdateCategoryDto): Promise<boolean> {
     try {
       const result = await this.categoryRepo.update(
         {

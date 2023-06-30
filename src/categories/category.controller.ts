@@ -14,7 +14,7 @@ import {
 } from 'tsoa';
 import { CategoryService } from './category.service';
 import { BadRequestError, SuccessResponse } from './../constants/response';
-import { CategoryDto, CreateCategoryDto } from './dtos/category.dto';
+import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from './dtos/category.dto';
 import { UUID } from '../lib/global.type';
 
 @Tags('Category')
@@ -83,7 +83,7 @@ export class CategoryController extends Controller {
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
   @Put()
-  public async update(@Body() body: CategoryDto) {
+  public async update(@Body() body: UpdateCategoryDto) {
     const result = await this.categoryService.update(body);
     if (result) {
       return new SuccessResponse('Successfully update category', result);
