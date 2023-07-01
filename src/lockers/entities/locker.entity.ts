@@ -1,16 +1,15 @@
-import { Check, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Check, Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Room } from '../../rooms/entities/room.entity';
 import { Folder } from '../../folders/entities/folder.entity';
 
 @Entity()
+@Index(['name', 'room'], { unique: true })
 @Check('"capacity" > 0')
 export class Locker {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    unique: true,
-  })
+  @Column()
   name: string;
 
   @Column({

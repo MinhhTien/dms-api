@@ -102,10 +102,11 @@ export class CategoryController extends Controller {
   @Delete('{id}')
   public async delete(@Path() id: UUID) {
     const result = await this.categoryService.delete(id);
-    if (result) {
-      return new SuccessResponse('Delete category successfully', result);
-    } else {
-      throw new BadRequestError('Failed to delete category');
+    if (result === true) {
+      return new SuccessResponse('Delete category successfully.', result);
     }
+    if (result === false)
+      throw new BadRequestError('Category could not be deleted.');
+    throw new BadRequestError(result);
   }
 }

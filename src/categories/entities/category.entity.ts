@@ -3,6 +3,7 @@ import { Department } from '../../departments/entities/department.entity';
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -10,6 +11,7 @@ import {
 } from 'typeorm';
 
 @Entity()
+@Index(['name', 'department'], { unique: true })
 export class Category {
   @PrimaryGeneratedColumn('uuid')
   id: string;

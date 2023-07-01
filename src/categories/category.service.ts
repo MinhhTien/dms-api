@@ -58,13 +58,19 @@ export class CategoryService {
     }
   }
 
-  public async delete(id: UUID): Promise<boolean> {
+  public async delete(id: UUID) {
     try {
       const result = await this.categoryRepo.delete(id);
       const affectedRow = result.affected;
       return affectedRow ? true : false;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.code);
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('still referenced')) {
+        return 'Category already is used by some documents';
+      }
       return false;
     }
   }
