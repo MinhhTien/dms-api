@@ -77,7 +77,8 @@ export class DocumentService {
   public async getMany(
     status: DocumentStatus[],
     dto: FindDocumentDto,
-    departmentId?: UUID
+    departmentId?: UUID,
+    sortASC?: boolean
   ) {
     const take = dto.take || 10;
     const page = dto.page || 1;
@@ -112,8 +113,8 @@ export class DocumentService {
           category: true,
         },
         order: {
-          updatedAt: 'DESC',
-          createdAt: 'DESC',
+          updatedAt: sortASC ? 'ASC' : 'DESC',
+          createdAt: sortASC ? 'ASC' : 'DESC',
         },
         take: take,
         skip: skip,
