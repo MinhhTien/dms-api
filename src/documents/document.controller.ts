@@ -89,7 +89,7 @@ export class DocumentController extends Controller {
   public async getManyPending(@Queries() dto: FindDocumentDto) {
     return new SuccessResponse(
       'Success',
-      await this.documentService.getMany([DocumentStatus.PENDING], dto)
+      await this.documentService.getMany([DocumentStatus.PENDING], dto, undefined, true)
     );
   }
 
