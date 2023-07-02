@@ -1,7 +1,11 @@
 import { Repository } from 'typeorm';
 import { AppDataSource } from '../database/data-source';
 import { Category } from './entities/category.entity';
-import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from './dtos/category.dto';
+import {
+  CategoryDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from './dtos/category.dto';
 import { UUID } from '../lib/global.type';
 
 export class CategoryService {
@@ -29,20 +33,25 @@ export class CategoryService {
     });
   }
 
-  public async create(
-    categoryDto: CreateCategoryDto
-  ): Promise<CategoryDto | null> {
+  public async create(categoryDto: CreateCategoryDto) {
     try {
-      let category = this.categoryRepo.create(categoryDto);
-      category = await this.categoryRepo.save(category);
-      return category;
-    } catch (error) {
-      console.log(error);
+      const category = this.categoryRepo.create(categoryDto);
+      return await this.categoryRepo.save(category);
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('already exists')) {
+        return 'Category name is already existed.';
+      }
+      if (error?.driverError?.detail?.includes('is not present')) {
+        return 'Department is not existed.';
+      }
       return null;
     }
   }
 
-  public async update(categoryDto: UpdateCategoryDto): Promise<boolean> {
+  public async update(categoryDto: UpdateCategoryDto) {
     try {
       const result = await this.categoryRepo.update(
         {
@@ -50,10 +59,14 @@ export class CategoryService {
         },
         categoryDto
       );
-      const affectedRow = result.affected;
-      return affectedRow ? true : false;
-    } catch (error) {
-      console.log(error);
+      return result.affected === 1;
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('already exists')) {
+        return 'Category name is already existed.';
+      }
       return false;
     }
   }

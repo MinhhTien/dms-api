@@ -16,6 +16,7 @@ import { CategoryService } from './category.service';
 import { BadRequestError, SuccessResponse } from './../constants/response';
 import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from './dtos/category.dto';
 import { UUID } from '../lib/global.type';
+import { Category } from './entities/category.entity';
 
 @Tags('Category')
 @Route('categories')
@@ -72,8 +73,12 @@ export class CategoryController extends Controller {
   @Response<SuccessResponse>(200)
   @Post()
   public async create(@Body() body: CreateCategoryDto) {
-    const category = await this.categoryService.create(body);
-    return new SuccessResponse('Success', category);
+    const result = await this.categoryService.create(body);
+    if (result instanceof Category) {
+      return new SuccessResponse('Category was created successfully.', result);
+    }
+    if (result == null) throw new BadRequestError('Category could not be created.');
+    else throw new BadRequestError(result);
   }
 
   /**
@@ -85,11 +90,12 @@ export class CategoryController extends Controller {
   @Put()
   public async update(@Body() body: UpdateCategoryDto) {
     const result = await this.categoryService.update(body);
-    if (result) {
-      return new SuccessResponse('Successfully update category', result);
-    } else {
-      throw new BadRequestError('Failed to update category');
+    if (result === true) {
+      return new SuccessResponse('Category was updated successfully.', result);
     }
+    if (result === false)
+      throw new BadRequestError('Category could not be updated.');
+    else throw new BadRequestError(result);
   }
 
   /**
