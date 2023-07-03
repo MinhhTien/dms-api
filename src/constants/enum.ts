@@ -4,6 +4,11 @@ export enum UserStatus {
   DELETED = 'DELETED',
 }
 
+export enum RoleType {
+  STAFF = 'STAFF',
+  EMPLOYEE = 'EMPLOYEE',
+}
+
 export enum DocumentStatus {
   REQUESTING = 'REQUESTING',
   PENDING = 'PENDING',
@@ -18,5 +23,5 @@ export enum RequestStatus {
   REJECTED = 'REJECTED',
   CANCELED = 'CANCELED',
   DONE = 'DONE',
-  EXPIRED = 'EXPIRED'
+  EXPIRED = 'EXPIRED',
 }
