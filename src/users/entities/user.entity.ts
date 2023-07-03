@@ -19,7 +19,7 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column({ unique: true })
   code: string;
 
   @Column({ name: 'first_name' })
@@ -43,7 +43,9 @@ export class User {
   @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users, {
+    cascade: ['insert', 'update'],
+  })
   @JoinColumn({ name: 'role_id' })
   role: Role;
 

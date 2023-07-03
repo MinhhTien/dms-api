@@ -6,19 +6,17 @@ import { Repository } from 'typeorm';
 import { UUID } from '../lib/global.type';
 import { getAuth } from 'firebase-admin/auth';
 import { redisClient } from '../index';
-
-// A post request should not contain an id.
-export type CreateUserDto = Pick<
-  User,
-  'email' | 'lastName' | 'firstName' | 'phone'
->;
+import { CreateUserDto } from './dtos/create-user.dto';
+import { Role } from './entities/role.entity';
 
 @singleton()
 export class UsersService {
   private userRepository: Repository<User>;
+  private roleRepository: Repository<Role>;
 
   constructor() {
     this.userRepository = AppDataSource.getRepository(User);
+    this.roleRepository = AppDataSource.getRepository(Role);
   }
 
   public async get(email: string): Promise<User | null> {
@@ -80,13 +78,47 @@ export class UsersService {
 
   public async update(id: UUID, user: any) {
     try {
-      const result = await this.userRepository.update(id, 
-        {
-          photoURL: user.photoURL,
-        });
+      const result = await this.userRepository.update(id, {
+        photoURL: user.photoURL,
+      });
       return result.affected;
     } catch (error) {
       console.log('Error fetching user data:', error);
+      return null;
+    }
+  }
+
+  public async create(createUserDto: CreateUserDto) {
+    try {
+      const role = await this.roleRepository.findOne({
+        where: {
+          name: 'EMPLOYEE',
+        },
+      });
+      if (role === null) return null;
+      const user = this.userRepository.create(createUserDto);
+      user.role = role;
+      user.photoURL = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'
+      const result = await this.userRepository.save(user);
+      return result;
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('is not present in table "department".')) {
+        return 'Department is not existed.';
+      }
+      if (error?.driverError?.detail?.includes('already exists')) {
+        if (error?.driverError?.detail?.includes('email')) {
+          return 'Email is already existed.';
+        }
+        if (error?.driverError?.detail?.includes('phone')) {
+          return 'Phone is already existed.';
+        }
+        if (error?.driverError?.detail?.includes('code')) {
+          return 'Code is already existed.';
+        }
+      }
       return null;
     }
   }
