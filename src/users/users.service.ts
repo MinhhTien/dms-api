@@ -98,14 +98,19 @@ export class UsersService {
       if (role === null) return null;
       const user = this.userRepository.create(createUserDto);
       user.role = role;
-      user.photoURL = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg'
+      user.photoURL =
+        'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
       const result = await this.userRepository.save(user);
       return result;
     } catch (error: any) {
       console.log('====');
       console.error(error?.driverError?.detail);
       console.log('====');
-      if (error?.driverError?.detail?.includes('is not present in table "department".')) {
+      if (
+        error?.driverError?.detail?.includes(
+          'is not present in table "department".'
+        )
+      ) {
         return 'Department is not existed.';
       }
       if (error?.driverError?.detail?.includes('already exists')) {
@@ -119,6 +124,49 @@ export class UsersService {
           return 'Code is already existed.';
         }
       }
+      return null;
+    }
+  }
+
+  public async disable(id: UUID) {
+    try {
+      const result = await this.userRepository.update({
+        id: id,
+        status: UserStatus.ACTIVE,
+      }, {
+        status: UserStatus.INACTIVE,
+      });
+      return result.affected;
+    } catch (error) {
+      console.log('Error fetching user data:', error);
+      return null;
+    }
+  }
+
+  public async enable(id: UUID) {
+    try {
+      const result = await this.userRepository.update({
+        id: id,
+        status: UserStatus.INACTIVE,
+      }, {
+        status: UserStatus.ACTIVE,
+      });
+      return result.affected;
+    } catch (error) {
+      console.log('Error fetching user data:', error);
+      return null;
+    }
+  }
+
+  public async delete(id: UUID) {
+    try {
+      const result = await this.userRepository.delete({
+        id: id,
+        status: UserStatus.INACTIVE,
+      });
+      return result.affected;
+    } catch (error) {
+      console.log('Error fetching user data:', error);
       return null;
     }
   }

@@ -1,4 +1,14 @@
-import { Controller, Get, Route, Security, Tags, Request, Path, Post, Body } from 'tsoa';
+import {
+  Controller,
+  Get,
+  Route,
+  Security,
+  Tags,
+  Request,
+  Path,
+  Post,
+  Body,
+} from 'tsoa';
 import { User } from './entities/user.entity';
 import { SuccessResponse, BadRequestError } from '../constants/response';
 import { injectable } from 'tsyringe';
@@ -68,7 +78,9 @@ export class UsersController extends Controller {
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Post('revoke-refresh-token')
   public async revokeRefreshToken(@Request() request: any) {
-    const result = await this.userService.revokeRefreshToken(request.user.email);
+    const result = await this.userService.revokeRefreshToken(
+      request.user.email
+    );
     if (result) return new SuccessResponse('Success', result);
     else return new BadRequestError('Fail to revoke refresh token');
   }
@@ -83,7 +95,44 @@ export class UsersController extends Controller {
     if (result instanceof User) {
       return new SuccessResponse('Success', result);
     }
-    if (result == null) throw new BadRequestError('Fail to create new account.');
+    if (result == null)
+      throw new BadRequestError('Fail to create new account.');
     else throw new BadRequestError(result);
+  }
+
+  /**
+   * Disable account (STAFF only)
+   * @param id id of employee
+   */
+  @Security('api_key', ['STAFF'])
+  @Post('disable/:id')
+  public async disable(@Path() id: UUID) {
+    const result = await this.userService.disable(id);
+    if (result) return new SuccessResponse('Success', null);
+    else return new BadRequestError('Fail to disable account.');
+  }
+
+  /**
+   * Enable account (STAFF only)
+   * @param id id of employee
+   */
+  @Security('api_key', ['STAFF'])
+  @Post('enable/:id')
+  public async enable(@Path() id: UUID) {
+    const result = await this.userService.enable(id);
+    if (result) return new SuccessResponse('Success', null);
+    else return new BadRequestError('Fail to enable account.');
+  }
+
+  /**
+   * Delete account (STAFF only)
+   * @param id id of employee
+   */
+  @Security('api_key', ['STAFF'])
+  @Post('delete/:id')
+  public async delete(@Path() id: UUID) {
+    const result = await this.userService.delete(id);
+    if (result) return new SuccessResponse('Success', null);
+    else return new BadRequestError('Fail to delete account.');
   }
 }
