@@ -1,8 +1,4 @@
 import { UUID } from '../../lib/global.type';
-import {
-  IsEmail,
-  IsPhoneNumber,
-} from 'class-validator';
 
 export interface CreateUserDto {
   /**
