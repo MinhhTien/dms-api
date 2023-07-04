@@ -267,7 +267,7 @@ export class StaticController extends Controller {
       throw new BadRequestError('File not existed.');
     const filePath = resolve(
       __dirname,
-      '../../',
+      '../../../',
       'uploads',
       document.storageUrl
     );
