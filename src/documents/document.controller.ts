@@ -271,6 +271,7 @@ export class StaticController extends Controller {
       'uploads',
       document.storageUrl
     );
+    console.log(filePath)
     const response = request.res;
     if (!fs.existsSync(filePath)) {
       throw new BadRequestError('File not found.');
