@@ -277,19 +277,22 @@ export class StaticController extends Controller {
       throw new BadRequestError('File not found.');
     }
     if (response) {
-      response.setHeader('Content-Type', 'application/pdf');
-      response.setHeader('Content-Length', fs.statSync(filePath).size);
-      response.setHeader('Accept-Ranges', 'bytes');
+      // response.setHeader('Content-Type', 'application/pdf');
+      // response.setHeader('Content-Length', fs.statSync(filePath).size);
+      // response.setHeader('Accept-Ranges', 'bytes');
 
-      const readStream = fs.createReadStream(filePath);
+      // const readStream = fs.createReadStream(filePath);
 
-      readStream.pipe(response);
-      await new Promise<void>((resolve, reject) => {
-        readStream.on('end', () => {
-          response.end();
-          resolve();
-        });
-      });
+      // readStream.pipe(response);
+      // await new Promise<void>((resolve, reject) => {
+      //   readStream.on('end', () => {
+      //     response.end();
+      //     resolve();
+      //   });
+      // });
+      const data = fs.readFileSync(filePath);
+      response.contentType("application/pdf");
+      response.send(data);
     }
     throw new BadRequestError('Error.');
   }
