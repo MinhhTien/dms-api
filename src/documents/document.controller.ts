@@ -301,7 +301,7 @@ export class StaticController extends Controller {
       // });
       response.setHeader('Content-Type', 'application/pdf');
       const data = fs.readFileSync(filePath);
-      response.send(data);
+      response.send(data.toString('base64'));
       return response;
     }
     return null;
