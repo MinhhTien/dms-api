@@ -12,6 +12,7 @@ import {
   Path,
   Get,
   Queries,
+  Produces,
 } from 'tsoa';
 import { BadRequestError, SuccessResponse } from '../constants/response';
 import { injectable } from 'tsyringe';
@@ -243,6 +244,7 @@ export class StaticController extends Controller {
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('/:id')
   @Response<BadRequestError>(400)
+  @Produces('application/pdf')
   public async getMedia(@Path() id: string, @Request() request: any) {
     const document =
       request.user.role.name === 'EMPLOYEE'
@@ -280,29 +282,28 @@ export class StaticController extends Controller {
     );
     const response = request.res;
 
+    console.log(filePath);
     if (!fs.existsSync(filePath)) {
       throw new BadRequestError('File not found.');
     }
-    console.log(filePath);
     if (response) {
+      // this.setHeader('Content-Length', fs.statSync(filePath).size.toString());
+      // this.setHeader('Accept-Ranges', 'bytes');
+      this.setHeader('Content-Type', 'application/pdf');
+
+      // const readStream = fs.createReadStream(filePath);
+      // readStream.pipe(response);
+      // await new Promise<void>((resolve, reject) => {
+      //   readStream.on('end', () => {
+      //     response.end();
+      //     resolve();
+      //   });
+      // });
       response.setHeader('Content-Type', 'application/pdf');
-      response.setHeader('Content-Length', fs.statSync(filePath).size);
-      response.setHeader('Accept-Ranges', 'bytes');
-
-      const readStream = fs.createReadStream(filePath);
-
-      readStream.pipe(response);
-      await new Promise<void>((resolve, reject) => {
-        readStream.on('end', () => {
-          response.end();
-          resolve();
-        });
-      });
-      // const data = fs.readFileSync(filePath);
-      // response.contentType('application/pdf');
-      // response.send(data);
-      // return response;
+      const data = fs.readFileSync(filePath);
+      response.send(data);
+      return response;
     }
-    //return null;
+    return null;
   }
 }
