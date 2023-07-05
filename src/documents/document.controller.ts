@@ -89,7 +89,12 @@ export class DocumentController extends Controller {
   public async getManyPending(@Queries() dto: FindDocumentDto) {
     return new SuccessResponse(
       'Success',
-      await this.documentService.getMany([DocumentStatus.PENDING], dto, undefined, true)
+      await this.documentService.getMany(
+        [DocumentStatus.PENDING],
+        dto,
+        undefined,
+        true
+      )
     );
   }
 
@@ -103,19 +108,20 @@ export class DocumentController extends Controller {
   @Response<Document>(200)
   @Response<BadRequestError>(400)
   public async getOne(@Path() id: UUID, @Request() request: any) {
-    const result = (request.user.role.name === 'EMPLOYEE'
-      ? await this.documentService.getOne(
-          id,
-          [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED],
-          undefined,
-          request.user.department.id
-        )
-      : await this.documentService.getOne(id, [
-          DocumentStatus.AVAILABLE,
-          DocumentStatus.BORROWED,
-          DocumentStatus.PENDING,
-          DocumentStatus.REQUESTING,
-        ]));
+    const result =
+      request.user.role.name === 'EMPLOYEE'
+        ? await this.documentService.getOne(
+            id,
+            [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED],
+            undefined,
+            request.user.department.id
+          )
+        : await this.documentService.getOne(id, [
+            DocumentStatus.AVAILABLE,
+            DocumentStatus.BORROWED,
+            DocumentStatus.PENDING,
+            DocumentStatus.REQUESTING,
+          ]);
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Document not existed.');
   }
@@ -156,18 +162,19 @@ export class DocumentController extends Controller {
     @UploadedFile() file: Express.Multer.File
   ): Promise<any> {
     console.log(file);
-    const document = (request.user.role.name === 'EMPLOYEE'
-      ? await this.documentService.getOne(
-          id,
-          [DocumentStatus.REQUESTING],
-          request.user,
-          request.user.department.id
-        )
-      : await this.documentService.getOne(id, [
-          DocumentStatus.AVAILABLE,
-          DocumentStatus.BORROWED,
-          DocumentStatus.PENDING,
-        ]));
+    const document =
+      request.user.role.name === 'EMPLOYEE'
+        ? await this.documentService.getOne(
+            id,
+            [DocumentStatus.REQUESTING],
+            request.user,
+            request.user.department.id
+          )
+        : await this.documentService.getOne(id, [
+            DocumentStatus.AVAILABLE,
+            DocumentStatus.BORROWED,
+            DocumentStatus.PENDING,
+          ]);
     if (document == null) {
       fs.unlink(__dirname + '/../../uploads/' + file.filename, (err) => {
         if (err) console.log(err);
@@ -235,65 +242,67 @@ export class StaticController extends Controller {
    */
   @Security('api_key', ['STAFF', 'EMPLOYEE'])
   @Get('/:id')
-  @Response<Document>(200)
   @Response<BadRequestError>(400)
   public async getMedia(@Path() id: string, @Request() request: any) {
-    const document = (request.user.role.name === 'EMPLOYEE'
-      ? await this.documentService.getOne(
-          id,
-          [
-            DocumentStatus.AVAILABLE,
-            DocumentStatus.BORROWED,
-            DocumentStatus.REQUESTING,
-          ],
-          undefined,
-          request.user.department.id,
-          true
-        )
-      : await this.documentService.getOne(
-          id,
-          [
-            DocumentStatus.AVAILABLE,
-            DocumentStatus.BORROWED,
-            DocumentStatus.PENDING,
-            DocumentStatus.REQUESTING,
-          ],
-          undefined,
-          undefined,
-          true
-        ));
+    const document =
+      request.user.role.name === 'EMPLOYEE'
+        ? await this.documentService.getOne(
+            id,
+            [
+              DocumentStatus.AVAILABLE,
+              DocumentStatus.BORROWED,
+              DocumentStatus.REQUESTING,
+            ],
+            undefined,
+            request.user.department.id,
+            true
+          )
+        : await this.documentService.getOne(
+            id,
+            [
+              DocumentStatus.AVAILABLE,
+              DocumentStatus.BORROWED,
+              DocumentStatus.PENDING,
+              DocumentStatus.REQUESTING,
+            ],
+            undefined,
+            undefined,
+            true
+          );
     if (document == null) throw new BadRequestError('Document not existed.');
     if (document.storageUrl == null)
       throw new BadRequestError('File not existed.');
     const filePath = resolve(
       __dirname,
-      '../../../',
+      '../../',
       'uploads',
       document.storageUrl
     );
-    console.log(filePath)
     const response = request.res;
+
     if (!fs.existsSync(filePath)) {
       throw new BadRequestError('File not found.');
     }
+    console.log(filePath);
     if (response) {
-      // response.setHeader('Content-Type', 'application/pdf');
-      // response.setHeader('Content-Length', fs.statSync(filePath).size);
-      // response.setHeader('Accept-Ranges', 'bytes');
+      response.setHeader('Content-Type', 'application/pdf');
+      response.setHeader('Content-Length', fs.statSync(filePath).size);
+      response.setHeader('Accept-Ranges', 'bytes');
 
-      // const readStream = fs.createReadStream(filePath);
+      const readStream = fs.createReadStream(filePath);
 
-      // readStream.pipe(response);
-      // await new Promise<void>((resolve, reject) => {
-      //   readStream.on('end', () => {
-      //     response.end();
-      //     resolve();
-      //   });
-      // });
-      const data = fs.readFileSync(filePath);
-      response.contentType("application/pdf");
-      response.send(data);
+      readStream.pipe(response);
+      await new Promise<void>((resolve, reject) => {
+        readStream.on('end', () => {
+          response.end();
+          resolve();
+        });
+      });
+      // const data = fs.readFileSync(filePath);
+      // response.contentType('application/pdf');
+      // response.send(data);
+      // return response;
     }
-    throw new BadRequestError('Error.');
+    //return null;
   }
 }
