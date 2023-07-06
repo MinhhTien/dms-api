@@ -68,7 +68,9 @@ export class Document {
   @JoinColumn({ name: 'folder_id' })
   folder: Folder;
 
-  @ManyToOne(() => Category, (category) => category.documents)
+  @ManyToOne(() => Category, (category) => category.documents, {
+    cascade: ['update']
+  })
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
