@@ -9,13 +9,16 @@ import { UUID } from '../lib/global.type';
 import { DocumentStatus } from '../constants/enum';
 import { Category } from '../categories/entities/category.entity';
 import { FindDocumentDto } from './dtos/find-document.dto';
+import { UpdateDocumentDto } from './dtos/update-document.dto';
 
 @singleton()
 export class DocumentService {
   private documentRepository: Repository<Document>;
+  private categoryRepository: Repository<Category>;
 
   constructor() {
     this.documentRepository = AppDataSource.getRepository(Document);
+    this.categoryRepository = AppDataSource.getRepository(Category);
   }
 
   public async getOne(
@@ -129,7 +132,7 @@ export class DocumentService {
   public async create(createDocumentDto: CreateDocumentDto, createdBy: User) {
     try {
       // check if department contains category
-      const category = await AppDataSource.getRepository(Category).findOne({
+      const category = await this.categoryRepository.findOne({
         where: {
           id: createDocumentDto.category.id,
           department: {
@@ -183,7 +186,47 @@ export class DocumentService {
     }
   }
 
-  public async update(documentId: UUID, fileName: string, updatedBy: User) {
+  public async update(updateDocumentDto: UpdateDocumentDto, updatedBy: User) {
+    try {
+      const document = await this.getOne(updateDocumentDto.id, [DocumentStatus.AVAILABLE]);
+      if (!document) {
+        return 'Document not existed.';
+      }
+
+      // check if department contains category
+      const category = await this.categoryRepository.findOne({
+        where: {
+          id: updateDocumentDto.category.id,
+          department: {
+            id: document.folder.locker.room.department.id,
+          },
+        },
+      });
+      if (!category) {
+        return 'Category not existed in this department.';
+      }
+
+      const result = await this.documentRepository.update(
+        {
+          id: updateDocumentDto.id,
+        },
+        {
+          name: updateDocumentDto.name,
+          description: updateDocumentDto.description,
+          category: {
+            id: updateDocumentDto.category.id,
+          },
+          updatedBy: updatedBy,
+        }
+      );
+      return result.affected === 1;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  public async updateStorageUrl(documentId: UUID, fileName: string, updatedBy: User) {
     try {
       const result = await this.documentRepository.update(
         {

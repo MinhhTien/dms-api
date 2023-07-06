@@ -13,6 +13,7 @@ import {
   Get,
   Queries,
   Produces,
+  Put,
 } from 'tsoa';
 import { BadRequestError, SuccessResponse } from '../constants/response';
 import { injectable } from 'tsyringe';
@@ -25,6 +26,7 @@ import { ConfirmDocumentDto } from './dtos/confirm-document.dto';
 import { DocumentStatus } from '../constants/enum';
 import { FindDocumentDto } from './dtos/find-document.dto';
 import { resolve } from 'path';
+import { UpdateDocumentDto } from './dtos/update-document.dto';
 
 @injectable()
 @Tags('Document')
@@ -151,6 +153,28 @@ export class DocumentController extends Controller {
   }
 
   /**
+   * Update document (STAFF only)
+   */
+  @Put('')
+  @Security('api_key', ['STAFF'])
+  @Response<SuccessResponse>(200)
+  public async update(
+    @Request() request: any,
+    @Body() updateDocumentDto: UpdateDocumentDto
+  ): Promise<any> {
+    const result = await this.documentService.update(
+      updateDocumentDto,
+      request.user
+    );
+    if (result === true) {
+      return new SuccessResponse('Document was updated successfully.', result);
+    }
+    if (result === false)
+      throw new BadRequestError('Document could not be updated.');
+    else throw new BadRequestError(result);
+  }
+
+  /**
    * Upload pdf file for document
    * if employee, only upload file for pending document of own import request
    */
@@ -192,7 +216,7 @@ export class DocumentController extends Controller {
       }
     }
 
-    const result = await this.documentService.update(
+    const result = await this.documentService.updateStorageUrl(
       document.id,
       file.filename,
       request.user
