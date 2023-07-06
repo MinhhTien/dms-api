@@ -31,6 +31,32 @@ export class DepartmentController extends Controller {
   }
 
   /**
+   * Retrieves departments.
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('')
+  @Response<Department[]>(200)
+  public async getMany() {
+    return new SuccessResponse(
+      'Success',
+      await this.departmentService.getAll()
+    );
+  }
+
+  /**
+   * Count departments.
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('count')
+  @Response<number>(200)
+  public async count() {
+    return new SuccessResponse(
+      'Success',
+      await this.departmentService.count()
+    );
+  }
+
+  /**
    * Retrieves a department.
    * @param id The id of department
    */
@@ -42,19 +68,6 @@ export class DepartmentController extends Controller {
     const result = await this.departmentService.getOne(id);
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Department not existed.');
-  }
-
-  /**
-   * Retrieves departments.
-   */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
-  @Get('')
-  @Response<Department[]>(200)
-  public async getMany() {
-    return new SuccessResponse(
-      'Success',
-      await this.departmentService.getAll()
-    );
   }
 
   /**

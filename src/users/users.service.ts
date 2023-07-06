@@ -76,6 +76,24 @@ export class UsersService {
     }
   }
 
+  public async count(departmentId?: UUID) {
+    try {
+      return await this.userRepository.count({
+        where: {
+          status: UserStatus.ACTIVE,
+          ...(departmentId && {
+            department: {
+              id: departmentId,
+            },
+          }),
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return 0;
+    }
+  }
+
   public async update(id: UUID, user: any) {
     try {
       const result = await this.userRepository.update(id, {
@@ -130,12 +148,15 @@ export class UsersService {
 
   public async disable(id: UUID) {
     try {
-      const result = await this.userRepository.update({
-        id: id,
-        status: UserStatus.ACTIVE,
-      }, {
-        status: UserStatus.INACTIVE,
-      });
+      const result = await this.userRepository.update(
+        {
+          id: id,
+          status: UserStatus.ACTIVE,
+        },
+        {
+          status: UserStatus.INACTIVE,
+        }
+      );
       return result.affected;
     } catch (error) {
       console.log('Error fetching user data:', error);
@@ -145,12 +166,15 @@ export class UsersService {
 
   public async enable(id: UUID) {
     try {
-      const result = await this.userRepository.update({
-        id: id,
-        status: UserStatus.INACTIVE,
-      }, {
-        status: UserStatus.ACTIVE,
-      });
+      const result = await this.userRepository.update(
+        {
+          id: id,
+          status: UserStatus.INACTIVE,
+        },
+        {
+          status: UserStatus.ACTIVE,
+        }
+      );
       return result.affected;
     } catch (error) {
       console.log('Error fetching user data:', error);
