@@ -34,6 +34,10 @@ export class DepartmentService {
     return await this.departmentRepository.find();
   }
 
+  public async count() {
+    return await this.departmentRepository.count();
+  }
+
   public async getTree(departmentId?: UUID) {
     try {
       let tree = await this.departmentRepository.find({

@@ -83,6 +83,25 @@ export class DocumentController extends Controller {
   }
 
   /**
+   * Count documents.
+   * If user is EMPLOYEE, only count documents in own department.
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('count')
+  @Response<number>(200)
+  public async count(@Request() request: any) {
+    return new SuccessResponse(
+      'Success',
+      await this.documentService.count(
+        [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED],
+        request.user.role.name === 'EMPLOYEE'
+          ? request.user.department.id
+          : undefined
+      )
+    );
+  }
+
+  /**
    * Retrieves pending documents waiting for confirmation. (PENDING status) (STAFF only)
    * @param folderId The id of folder (optional)
    */

@@ -8,6 +8,7 @@ import {
   Path,
   Post,
   Body,
+  Response,
 } from 'tsoa';
 import { User } from './entities/user.entity';
 import { SuccessResponse, BadRequestError } from '../constants/response';
@@ -59,6 +60,24 @@ export class UsersController extends Controller {
     const result = await redisClient.del(userRecord.uid);
     if (result) return new SuccessResponse('Logout success', null);
     else return new BadRequestError('Logout fail');
+  }
+
+  /**
+   * Count members
+   * if EMPLOYEE, count all members in own department
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('count')
+  @Response<number>(200)
+  public async count(@Request() request: any) {
+    return new SuccessResponse(
+      'Success',
+      await this.userService.count(
+        request.user.role.name === 'EMPLOYEE'
+          ? request.user.department.id
+          : undefined
+      )
+    );
   }
 
   /**

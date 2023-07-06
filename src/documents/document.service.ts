@@ -129,6 +129,30 @@ export class DocumentService {
     }
   }
 
+  public async count(status: DocumentStatus[], departmentId?: UUID) {
+    try {
+      return await this.documentRepository.count({
+        where: {
+          status: In(status),
+          ...(departmentId && {
+            folder: {
+              locker: {
+                room: {
+                  department: {
+                    id: departmentId,
+                  },
+                },
+              },
+            },
+          }),
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return 0;
+    }
+  }
+
   public async create(createDocumentDto: CreateDocumentDto, createdBy: User) {
     try {
       // check if department contains category
@@ -188,7 +212,9 @@ export class DocumentService {
 
   public async update(updateDocumentDto: UpdateDocumentDto, updatedBy: User) {
     try {
-      const document = await this.getOne(updateDocumentDto.id, [DocumentStatus.AVAILABLE]);
+      const document = await this.getOne(updateDocumentDto.id, [
+        DocumentStatus.AVAILABLE,
+      ]);
       if (!document) {
         return 'Document not existed.';
       }
@@ -226,7 +252,11 @@ export class DocumentService {
     }
   }
 
-  public async updateStorageUrl(documentId: UUID, fileName: string, updatedBy: User) {
+  public async updateStorageUrl(
+    documentId: UUID,
+    fileName: string,
+    updatedBy: User
+  ) {
     try {
       const result = await this.documentRepository.update(
         {
