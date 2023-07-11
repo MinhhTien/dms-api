@@ -212,22 +212,23 @@ export class DocumentController extends Controller {
             id,
             [DocumentStatus.REQUESTING],
             request.user,
-            request.user.department.id
+            request.user.department.id,
+            true
           )
         : await this.documentService.getOne(id, [
             DocumentStatus.AVAILABLE,
             DocumentStatus.BORROWED,
             DocumentStatus.PENDING,
-          ]);
+          ], undefined, undefined, true);
     if (document == null) {
-      fs.unlink(__dirname + '/../../uploads/' + file.filename, (err) => {
+      fs.unlink(__dirname + '/../../../uploads/' + file.filename, (err) => {
         if (err) console.log(err);
       });
       throw new BadRequestError('Document not existed.');
     } else {
       if (document.storageUrl != null) {
         fs.unlink(
-          __dirname + '/../../uploads/' + document.storageUrl,
+          __dirname + '/../../../uploads/' + document.storageUrl,
           (err) => {
             if (err) console.log(err);
           }
