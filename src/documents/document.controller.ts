@@ -297,6 +297,7 @@ export class StaticController extends Controller {
             [
               DocumentStatus.AVAILABLE,
               DocumentStatus.BORROWED,
+              DocumentStatus.PENDING,
               DocumentStatus.REQUESTING,
             ],
             undefined,
