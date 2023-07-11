@@ -44,7 +44,9 @@ export class DocumentService {
             },
           }),
           ...(status && { status: In(status) }),
-          ...(createdBy && { createdBy: createdBy }),
+          ...(createdBy && { createdBy: {
+            id: createdBy.id,
+          } }),
         },
         relations: {
           folder: {
