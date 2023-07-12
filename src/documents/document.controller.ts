@@ -315,9 +315,9 @@ export class StaticController extends Controller {
                undefined,
                true
              );
-       if (document == null) throw new BadRequestError('Document not existed.');
+       if (document == null) return new SuccessResponse('Document not existed.', false)
        if (document.storageUrl == null)
-         throw new BadRequestError('File not existed.');
+         return new SuccessResponse('File not existed.', false)
        const filePath = resolve(
          __dirname,
          '../../../',
@@ -327,7 +327,7 @@ export class StaticController extends Controller {
    
        console.log(filePath);
        if (!fs.existsSync(filePath)) {
-         throw new BadRequestError('File not found.');
+         return new SuccessResponse('File not found.', false)
        }
        return new SuccessResponse('Success', true)
      }
