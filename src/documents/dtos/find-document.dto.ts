@@ -32,4 +32,14 @@ export class FindDocumentDto {
    * @optional
    */
   folderId?: UUID;
+
+  /**
+   * @isNumber
+   * @minimum 0
+   * @maximum 1
+   * @isInt
+   * @default 0
+   * @optional
+   */
+  skipPagination?: number;
 }

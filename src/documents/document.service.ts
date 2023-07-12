@@ -1,6 +1,6 @@
 import { AppDataSource } from '../database/data-source';
 import { singleton } from 'tsyringe';
-import { In, Like, Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { Document } from './entities/document.entity';
 import { CreateDocumentDto } from './dtos/create-document.dto';
 import { User } from '../users/entities/user.entity';
@@ -90,10 +90,11 @@ export class DocumentService {
     const page = dto.page || 1;
     const skip = (page - 1) * take;
     const keyword = dto.keyword || '';
+    const skipPagination = dto.skipPagination || 0;
     try {
       const [result, total] = await this.documentRepository.findAndCount({
         where: {
-          name: Like('%' + keyword + '%'),
+          name: ILike('%' + keyword + '%'),
           folder: {
             ...(departmentId && {
               locker: {
@@ -122,8 +123,7 @@ export class DocumentService {
           updatedAt: sortASC ? 'ASC' : 'DESC',
           createdAt: sortASC ? 'ASC' : 'DESC',
         },
-        take: take,
-        skip: skip,
+        ...!skipPagination && {take: take, skip: skip},
       });
       return { data: result, total: total };
     } catch (error) {
