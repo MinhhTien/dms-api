@@ -248,8 +248,13 @@ export class DocumentService {
         }
       );
       return result.affected === 1;
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('already exists')) {
+        return 'Document name is already existed.';
+      }
       return false;
     }
   }
