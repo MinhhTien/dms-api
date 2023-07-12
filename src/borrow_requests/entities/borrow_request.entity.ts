@@ -12,7 +12,9 @@ export class BorrowRequest extends Request {
   @Column({ type: 'integer', default: 1, name: 'borrow_duration' })
   borrowDuration: number;
 
-  @ManyToOne(() => Document, (document) => document.borrowRequests)
+  @ManyToOne(() => Document, (document) => document.borrowRequests, {
+    cascade: ['update'],
+  })
   @JoinColumn({ name: 'document_id' })
   document: Document;
 
