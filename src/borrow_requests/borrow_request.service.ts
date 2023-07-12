@@ -235,7 +235,6 @@ export class BorrowRequestService {
         where: {
           id: id,
           status: RequestStatus.APPROVED,
-          startDate: LessThanOrEqual(new Date()),
           document: {
             status: DocumentStatus.AVAILABLE,
           }
@@ -249,7 +248,10 @@ export class BorrowRequestService {
         return 'Borrow Request not existed';
       }
 
-      if(addDays(borrowRequest.startDate, borrowRequest.borrowDuration) < new Date())
+      if (borrowRequest.startDate > new Date())
+        return 'You just can verify this document to borrow since start date';
+
+      if (addDays(borrowRequest.startDate, borrowRequest.borrowDuration) < new Date())
         return 'You just can borrow this document within ' + borrowRequest.borrowDuration + ' days from start date';
 
       borrowRequest.status = RequestStatus.DONE;
