@@ -1,12 +1,12 @@
 import { AppDataSource } from '../database/data-source';
 import { singleton } from 'tsyringe';
-import { Repository } from 'typeorm';
+import { LessThan, LessThanOrEqual, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { BorrowRequest } from './entities/borrow_request.entity';
 import { CreateBorrowRequestDto } from './dtos/create_borrow_request.dto';
 import { Document } from '../documents/entities/document.entity';
 import { DocumentStatus, RequestStatus } from '../constants/enum';
-import { addDays } from '../lib/utils';
+import { addDays, subtractDays } from '../lib/utils';
 import { UUID } from 'lib/global.type';
 import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
 import { FindBorrowRequestDto } from './dtos/find_borrow_request.dto';
@@ -235,6 +235,10 @@ export class BorrowRequestService {
         where: {
           id: id,
           status: RequestStatus.APPROVED,
+          startDate: LessThanOrEqual(new Date()),
+          document: {
+            status: DocumentStatus.AVAILABLE,
+          }
         },
         relations: {
           document: true,
@@ -244,6 +248,9 @@ export class BorrowRequestService {
       if (!borrowRequest) {
         return 'Borrow Request not existed';
       }
+
+      if(addDays(borrowRequest.startDate, borrowRequest.borrowDuration) < new Date())
+        return 'You just can borrow this document within ' + borrowRequest.borrowDuration + ' days from start date';
 
       borrowRequest.status = RequestStatus.DONE;
       borrowRequest.updatedBy = updatedBy;
@@ -302,6 +309,31 @@ export class BorrowRequestService {
       borrowRequest.updatedBy = updatedBy;
       const result = await this.borrowRequestRepository.save(borrowRequest);
       return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  public async updateExpired() {
+    try {
+      const updateExpiredPending = this.borrowRequestRepository.update(
+        {
+          status: RequestStatus.PENDING,
+          expired_at: LessThan(new Date()),
+        }, {
+          status: RequestStatus.EXPIRED,
+        }
+      )
+      const updateExpiredApproved = this.borrowRequestRepository.update(
+        {
+          status: RequestStatus.APPROVED,
+          updatedAt: LessThan(subtractDays(new Date(), 3)),
+        }, {
+          status: RequestStatus.EXPIRED,
+        }
+      )
+      return Promise.all([updateExpiredPending, updateExpiredApproved])
     } catch (error) {
       console.log(error);
       return null;

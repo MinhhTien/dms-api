@@ -1,6 +1,6 @@
 import { AppDataSource } from '../database/data-source';
 import { singleton } from 'tsyringe';
-import { EntityNotFoundError, Repository } from 'typeorm';
+import { EntityNotFoundError, LessThan, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { ImportRequest } from './entities/import_request.entity';
 import { CreateImportRequestDto } from './dtos/create_import_request.dto';
@@ -11,6 +11,7 @@ import { RejectImportRequestDto } from './dtos/reject_import_request.dto';
 import { Folder } from '../folders/entities/folder.entity';
 import { FindImportRequestDto } from './dtos/find_import_request.dto';
 import { uuidToBase64 } from '../lib/barcode';
+import { subtractDays } from '../lib/utils';
 
 @singleton()
 export class ImportRequestService {
@@ -283,6 +284,31 @@ export class ImportRequestService {
       importRequest.updatedBy = updatedBy;
       const result = await this.importRequestRepository.save(importRequest);
       return result;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  public async updateExpired() {
+    try {
+      const updateExpiredPending = this.importRequestRepository.update(
+        {
+          status: RequestStatus.PENDING,
+          expired_at: LessThan(new Date()),
+        }, {
+          status: RequestStatus.EXPIRED,
+        }
+      )
+      const updateExpiredApproved = this.importRequestRepository.update(
+        {
+          status: RequestStatus.APPROVED,
+          updatedAt: LessThan(subtractDays(new Date(), 3)),
+        }, {
+          status: RequestStatus.EXPIRED,
+        }
+      )
+      return Promise.all([updateExpiredPending, updateExpiredApproved])
     } catch (error) {
       console.log(error);
       return null;

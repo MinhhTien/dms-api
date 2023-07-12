@@ -17,7 +17,7 @@ import { multerUpload } from './lib/upload';
 import { MulterError } from 'multer';
 import { createClient } from 'redis';
 import { RedisClientType } from '@redis/client';
-import { updatePhotoURL } from './lib/cron';
+import { updatePhotoURL, updateExpiredRequest } from './lib/cron';
 
 dotenv.config();
 
@@ -131,6 +131,7 @@ app.listen(port, async () => {
 
   await redisClient.connect();
   updatePhotoURL();
+  updateExpiredRequest();
 
   console.log(`🔥[cache]: Redis is connected`);
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
