@@ -6,10 +6,11 @@ import { CreateDocumentDto } from './dtos/create-document.dto';
 import { User } from '../users/entities/user.entity';
 import { Folder } from '../folders/entities/folder.entity';
 import { UUID } from '../lib/global.type';
-import { DocumentStatus } from '../constants/enum';
+import { DocumentStatus, RequestStatus } from '../constants/enum';
 import { Category } from '../categories/entities/category.entity';
 import { FindDocumentDto } from './dtos/find-document.dto';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
+import { addDays } from '../lib/utils';
 
 @singleton()
 export class DocumentService {
@@ -300,6 +301,57 @@ export class DocumentService {
     } catch (error) {
       console.log(error);
       return false;
+    }
+  }
+
+  public async checkReturn(id: UUID) {
+    try {
+      const document = await this.documentRepository.findOne({
+        where: {
+          id: id,
+          status: DocumentStatus.BORROWED,
+        },
+        relations: {
+          borrowRequests: true,
+        },
+      });
+      if (!document) {
+        return null;
+      }
+      const borrowRequest = document.borrowRequests.find(
+        (request) => request.status === RequestStatus.DONE && 
+        request.startDate <= new Date() && addDays(request.startDate, request.borrowDuration) >= new Date()
+      )
+      if (!borrowRequest) {
+        return 'Document can be returned but late.';
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+  public async return(id: UUID, updatedBy: User) {
+    try {
+      const document = await this.documentRepository.findOne({
+        where: {
+          id: id,
+          status: DocumentStatus.BORROWED,
+        },
+        relations: {
+          borrowRequests: true,
+        },
+      });
+      if (!document) {
+        return false;
+      }
+      document.status = DocumentStatus.AVAILABLE;
+      document.updatedBy = updatedBy;
+      return await this.documentRepository.save(document);
+    } catch (error) {
+      console.log(error);
+      return null;
     }
   }
 }
