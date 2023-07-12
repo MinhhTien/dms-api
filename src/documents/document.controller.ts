@@ -280,6 +280,58 @@ export class StaticController extends Controller {
     super();
   }
 
+     /**
+   * Check a static file of document.
+   * If user is EMPLOYEE, only check document in own department.
+   * @param id The id of document
+   */
+     @Security('api_key', ['STAFF', 'EMPLOYEE'])
+     @Get('check/:id')
+     @Response<BadRequestError>(400)
+     public async checkMedia(@Path() id: string, @Request() request: any) {
+       const document =
+         request.user.role.name === 'EMPLOYEE'
+           ? await this.documentService.getOne(
+               id,
+               [
+                 DocumentStatus.AVAILABLE,
+                 DocumentStatus.BORROWED,
+                 DocumentStatus.PENDING,
+                 DocumentStatus.REQUESTING,
+               ],
+               undefined,
+               request.user.department.id,
+               true
+             )
+           : await this.documentService.getOne(
+               id,
+               [
+                 DocumentStatus.AVAILABLE,
+                 DocumentStatus.BORROWED,
+                 DocumentStatus.PENDING,
+                 DocumentStatus.REQUESTING,
+               ],
+               undefined,
+               undefined,
+               true
+             );
+       if (document == null) throw new BadRequestError('Document not existed.');
+       if (document.storageUrl == null)
+         throw new BadRequestError('File not existed.');
+       const filePath = resolve(
+         __dirname,
+         '../../../',
+         'uploads',
+         document.storageUrl
+       );
+   
+       console.log(filePath);
+       if (!fs.existsSync(filePath)) {
+         throw new BadRequestError('File not found.');
+       }
+       return new SuccessResponse('Success', true)
+     }
+
   /**
    * Retrieves a static file of document.
    * If user is EMPLOYEE, only get document in own department.
