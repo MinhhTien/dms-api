@@ -124,7 +124,6 @@ export class BorrowRequestController extends Controller {
 
   /**
    * Verify accepted borrow request (STAFF only)
-   * @param id The id of borrow request
    */
   @Post('verify')
   @Security('api_key', ['STAFF'])

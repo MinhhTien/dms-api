@@ -27,6 +27,7 @@ import { DocumentStatus } from '../constants/enum';
 import { FindDocumentDto } from './dtos/find-document.dto';
 import { resolve } from 'path';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
+import { VerifyReturnDocumentDto } from './dtos/verify-return-document.dto';
 
 @injectable()
 @Tags('Document')
@@ -270,6 +271,44 @@ export class DocumentController extends Controller {
         'Failed to confirm document is placed in correct place.'
       );
   }
+
+  /**
+   * Check can Return borrowed document (STAFF only)
+   * if return Success, 'Document can be returned on time'.
+   * if return Warning, 'Document can be returned but late'.
+   * Then FE will show popup to confirm to continue return or not. Then use return() API function below.
+   */
+    @Post('check-return')
+    @Security('api_key', ['STAFF'])
+    @Response<SuccessResponse>(200)
+    public async checkReturn(@Body() verifyReturnDocumentDto: VerifyReturnDocumentDto) {
+      console.log(base64toUUID(verifyReturnDocumentDto.QRCode));
+      const documentId = base64toUUID(verifyReturnDocumentDto.QRCode);
+      const result = await this.documentService.checkReturn(documentId);
+  
+      if (result === true)
+        return new SuccessResponse('Success', 'Document can be returned on time.');
+      if (result == false)
+        throw new BadRequestError('Invalid QR code');
+      else return new SuccessResponse('Warning', result);
+    }
+
+  /**
+   * Return borrowed document (STAFF only)
+   */
+    @Post('return')
+    @Security('api_key', ['STAFF'])
+    @Response<SuccessResponse>(200)
+    public async return(@Request() request: any, @Body() verifyReturnDocumentDto: VerifyReturnDocumentDto) {
+      console.log(base64toUUID(verifyReturnDocumentDto.QRCode));
+      const documentId = base64toUUID(verifyReturnDocumentDto.QRCode);
+      const result = await this.documentService.return(documentId, request.user);
+  
+      if (result)
+        return new SuccessResponse('Success', 'Document was returned successfully.');
+      else
+        throw new BadRequestError('Failed to return document.');
+    }
 }
 
 @injectable()
