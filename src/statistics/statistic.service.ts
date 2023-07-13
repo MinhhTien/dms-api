@@ -271,4 +271,72 @@ export class StatisticService {
       return null;
     }
   }
+
+  public async requestMonthlyReport(year: number, departmentId?: UUID) {
+    try {
+      const countBorrowRequestPromise = departmentId ? await this.borrowRequestRepository
+        .createQueryBuilder('borrow_request')
+        .select(`COUNT(*) as count, TO_CHAR(DATE(borrow_request.updatedAt), 'MM') as month`)
+        .innerJoin('borrow_request.document', 'document')
+        .innerJoin('document.folder', 'folder')
+        .innerJoin('folder.locker', 'locker')
+        .innerJoin('locker.room', 'room')
+        .leftJoin('room.department', 'department')
+        .where(`date_part('year', borrow_request.updatedAt) = :year`, { year })
+        .andWhere('department.id = :departmentId', { departmentId })
+        .groupBy('month')
+        .getRawMany()
+          : 
+        await this.borrowRequestRepository
+        .createQueryBuilder('borrow_request')
+        .select(`COUNT(*) as count, TO_CHAR(DATE(borrow_request.updatedAt), 'MM') as month`)
+        .where(`date_part('year', borrow_request.updatedAt) = :year`, { year })
+        .groupBy('month')
+        .getRawMany()
+
+      const countImportRequestPromise = departmentId ? await this.importRequestRepository
+      .createQueryBuilder('import_request')
+      .select(`COUNT(*) as count, TO_CHAR(DATE(import_request.updatedAt), 'MM') as month`)
+      .innerJoin('import_request.document', 'document')
+      .innerJoin('document.folder', 'folder')
+      .innerJoin('folder.locker', 'locker')
+      .innerJoin('locker.room', 'room')
+      .leftJoin('room.department', 'department')
+      .where(`date_part('year', import_request.updatedAt) = :year`, { year })
+      .andWhere('department.id = :departmentId', { departmentId })
+      .groupBy('month')
+      .getRawMany() 
+      : 
+      await this.importRequestRepository
+      .createQueryBuilder('import_request')
+        .select(`COUNT(*) as count, TO_CHAR(DATE(import_request.updatedAt), 'MM') as month`)
+        .where(`date_part('year', import_request.updatedAt) = :year`, { year })
+        .groupBy('month')
+        .getRawMany();
+      
+      const [countBorrowRequest, countImportRequest] = await Promise.all([countBorrowRequestPromise, countImportRequestPromise])
+     
+      let countBorrow = []
+      let countImport = []
+      for (let i = 1; i <= 12; i++) {
+        const foundBorrow = countBorrowRequest.find((item) => Number(item.month) === i);
+        const foundImport = countImportRequest.find((item) => Number(item.month) === i);
+        if (!foundBorrow) {
+          countBorrow.push(0);
+        } else {
+          countBorrow.push(Number(foundBorrow.count));
+        }
+        if (!foundImport) {
+          countImport.push(0);
+        } else {
+          countImport.push(Number(foundImport.count));
+        }
+      }
+
+      return [{borrow: countBorrow}, {import: countImport}];
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
 }

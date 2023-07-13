@@ -89,4 +89,18 @@ export class StatisticController extends Controller {
     : undefined);
     return new SuccessResponse('Success', result);
   }
+
+  /**
+   * Request Monthly report.
+   * if Employee, Request Monthly report of his department.
+   * @param year Year of report.
+   */
+  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Get('request-monthly-report/:year')
+  public async requestMonthlyReport(@Path() year: number, @Request() request: any) {
+    const result = await this.statisticService.requestMonthlyReport(year, request.user.role.name === 'EMPLOYEE'
+    ? request.user.department.id
+    : undefined);
+    return new SuccessResponse('Success', result);
+  }
 }
