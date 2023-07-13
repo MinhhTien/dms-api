@@ -49,6 +49,7 @@ export class LockerService {
                 },
               },
             },
+            order: { name: 'ASC' },
           })
         : await this.lockerRepository.find({
             where: {
@@ -56,6 +57,7 @@ export class LockerService {
                 id: roomId,
               },
             },
+            order: { name: 'ASC' },
           });
     } catch (error) {
       console.log(error);

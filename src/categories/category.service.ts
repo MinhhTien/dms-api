@@ -16,13 +16,14 @@ export class CategoryService {
   }
 
   public async getAll(): Promise<Category[]> {
-    return await this.categoryRepo.find({ relations: ['department'] });
+    return await this.categoryRepo.find({ relations: ['department'], order: { name: 'ASC' } });
   }
 
   public async getByDepartment(departmentId: UUID): Promise<Category[]> {
     return await this.categoryRepo.find({
       where: { department: { id: departmentId } },
       relations: ['department'],
+      order: { name: 'ASC' },
     });
   }
 

@@ -67,7 +67,7 @@ export class UsersService {
       const users = await this.userRepository.find({
         where: {
           status: UserStatus.ACTIVE,
-        },
+        }
       });
       return users;
     } catch (error) {

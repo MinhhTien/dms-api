@@ -43,6 +43,7 @@ export class RoomService {
                 id: departmentId,
               },
             },
+            order: { name: 'ASC' },
           })
         : await this.roomRepository.find();
     } catch (error) {
