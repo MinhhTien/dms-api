@@ -105,6 +105,19 @@ export class UsersController extends Controller {
   }
 
   /**
+   * List employee account (STAFF only)
+   */
+    @Security('api_key', ['STAFF'])
+    @Get('list')
+    public async list(@Body() createUserDto: CreateUserDto) {
+      const result = await this.userService.getAll();
+
+      if (result == null)
+        throw new BadRequestError('Fail to list employee accounts.');
+      return new SuccessResponse('Success', result);
+    }
+
+  /**
    * Create new employee account (STAFF only)
    */
   @Security('api_key', ['STAFF'])
