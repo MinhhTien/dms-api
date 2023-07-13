@@ -1,6 +1,6 @@
 import { AppDataSource } from '../database/data-source';
 import { singleton } from 'tsyringe';
-import { LessThan, LessThanOrEqual, Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import { BorrowRequest } from './entities/borrow_request.entity';
 import { CreateBorrowRequestDto } from './dtos/create_borrow_request.dto';
