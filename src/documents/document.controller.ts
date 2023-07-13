@@ -288,8 +288,7 @@ export class DocumentController extends Controller {
   
       if (result === true)
         return new SuccessResponse('Success', 'Document can be returned on time.');
-      if (result == false)
-        throw new BadRequestError('Invalid QR code');
+      if (result === null) throw new BadRequestError('Invalid QR code');
       else return new SuccessResponse('Warning', result);
     }
 
