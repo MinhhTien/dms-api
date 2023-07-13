@@ -109,7 +109,7 @@ export class UsersController extends Controller {
    */
     @Security('api_key', ['STAFF'])
     @Get('list')
-    public async list(@Body() createUserDto: CreateUserDto) {
+    public async list() {
       const result = await this.userService.getAll();
 
       if (result == null)
