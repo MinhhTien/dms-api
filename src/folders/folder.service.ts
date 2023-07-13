@@ -53,6 +53,7 @@ export class FolderService {
                 },
               },
             },
+            order: { name: 'ASC' },
           })
         : await this.folderRepository.find({
             where: {
@@ -60,6 +61,7 @@ export class FolderService {
                 id: lockerId,
               },
             },
+            order: { name: 'ASC' },
           });
     } catch (error) {
       console.log(error);

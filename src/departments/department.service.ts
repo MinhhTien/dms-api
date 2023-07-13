@@ -31,7 +31,7 @@ export class DepartmentService {
   }
 
   public async getAll() {
-    return await this.departmentRepository.find();
+    return await this.departmentRepository.find({order: { name: 'ASC' }});
   }
 
   public async count() {
@@ -53,6 +53,21 @@ export class DepartmentService {
             },
           },
         },
+        order: {
+          name: 'ASC',
+          rooms: {
+            name: 'ASC',
+            lockers: {
+              name: 'ASC',
+              folders: {
+                name: 'ASC',
+                documents: {
+                  name: 'ASC',
+                }
+              },
+            }
+          },
+        }
       });
       tree.forEach((department) => {
         return department.rooms.forEach((room) => {
