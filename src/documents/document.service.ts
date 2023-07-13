@@ -185,7 +185,9 @@ export class DocumentService {
       });
       if (folder) {
         if (
-          folder.documents.reduce(
+          folder.documents
+          .filter((document) => [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(document.status))
+          .reduce(
             (sum, document) => sum + document.numOfPages,
             0
           ) +

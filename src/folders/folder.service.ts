@@ -5,6 +5,7 @@ import { UUID } from '../lib/global.type';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { Locker } from '../lockers/entities/locker.entity';
+import { DocumentStatus } from '../constants/enum';
 
 @singleton()
 export class FolderService {
@@ -109,7 +110,9 @@ export class FolderService {
         relations: ['documents'],
       });
       if (currentFolder) {
-        const currentNumOfPages = currentFolder.documents.reduce(
+        const currentNumOfPages = currentFolder.documents
+        .filter((document) => [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(document.status))
+        .reduce(
           (sum, document) => sum + document.numOfPages,
           0
         );
