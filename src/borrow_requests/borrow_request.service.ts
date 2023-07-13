@@ -235,9 +235,6 @@ export class BorrowRequestService {
         where: {
           id: id,
           status: RequestStatus.APPROVED,
-          document: {
-            status: DocumentStatus.AVAILABLE,
-          }
         },
         relations: {
           document: true,
@@ -247,6 +244,9 @@ export class BorrowRequestService {
       if (!borrowRequest) {
         return 'Borrow Request not existed';
       }
+
+      if (borrowRequest.document.status !== DocumentStatus.AVAILABLE)
+        return 'Document is not available for borrowing';
 
       if (borrowRequest.startDate > new Date())
         return 'You just can verify this document to borrow since start date';
