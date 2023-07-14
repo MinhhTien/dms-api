@@ -10,6 +10,8 @@ import {
   Body,
   Response,
   Query,
+  Put,
+  Delete,
 } from 'tsoa';
 import { User } from './entities/user.entity';
 import { SuccessResponse, BadRequestError } from '../constants/response';
@@ -19,6 +21,7 @@ import { UUID } from '../lib/global.type';
 import { redisClient } from '../index';
 import { UserRecord, getAuth } from 'firebase-admin/auth';
 import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @injectable()
 @Tags('User')
@@ -123,7 +126,7 @@ export class UsersController extends Controller {
    * Create new employee account (STAFF only)
    */
   @Security('api_key', ['STAFF'])
-  @Post('new')
+  @Post('')
   public async create(@Body() createUserDto: CreateUserDto) {
     const result = await this.userService.create(createUserDto);
     if (result instanceof User) {
@@ -135,11 +138,26 @@ export class UsersController extends Controller {
   }
 
   /**
+   * Update employee account (STAFF only)
+   */
+  @Security('api_key', ['STAFF'])
+  @Put('')
+  public async update(@Body() updateUserDto: UpdateUserDto) {
+    const result = await this.userService.updateProfile(updateUserDto);
+    if (result === true) {
+      return new SuccessResponse('Employee was updated successfully.', result);
+    }
+    if (result === false)
+      throw new BadRequestError('Employee could not be updated.');
+    else throw new BadRequestError(result);
+  }
+
+  /**
    * Disable account (STAFF only)
    * @param id id of employee
    */
   @Security('api_key', ['STAFF'])
-  @Post('disable/:id')
+  @Delete('disable/:id')
   public async disable(@Path() id: UUID) {
     const result = await this.userService.disable(id);
     if (result) return new SuccessResponse('Success', null);
