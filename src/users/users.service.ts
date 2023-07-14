@@ -8,6 +8,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { redisClient } from '../index';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { Role } from './entities/role.entity';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @singleton()
 export class UsersService {
@@ -62,14 +63,16 @@ export class UsersService {
     }
   }
 
-  public async getAll(departmentId: UUID) {
+  public async getAll(departmentId?: UUID) {
     try {
       const users = await this.userRepository.find({
         where: {
           status: UserStatus.ACTIVE,
-          department: {
-            id: departmentId,
-          },
+          ...departmentId && {
+            department: {
+              id: departmentId,
+            },
+          }
         }
       });
       return users;
@@ -106,6 +109,36 @@ export class UsersService {
     } catch (error) {
       console.log('Error fetching user data:', error);
       return null;
+    }
+  }
+
+  public async updateProfile(updateUserDto: UpdateUserDto) {
+    try {
+      const result = await this.userRepository.update({
+        id: updateUserDto.id,
+        role: {
+          name: 'EMPLOYEE',
+        }
+      }, {
+        firstName: updateUserDto.firstName,
+        lastName: updateUserDto.lastName,
+        email: updateUserDto.email,
+        phone: updateUserDto.phone,
+      });
+      return result.affected === 1;
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.driverError?.detail);
+      console.log('====');
+      if (error?.driverError?.detail?.includes('already exists')) {
+        if (error?.driverError?.detail?.includes('email')) {
+          return 'Email is already existed.';
+        }
+        if (error?.driverError?.detail?.includes('phone')) {
+          return 'Phone is already existed.';
+        }
+      }
+      return false;
     }
   }
 
