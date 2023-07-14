@@ -114,12 +114,7 @@ export class UsersService {
 
   public async updateProfile(updateUserDto: UpdateUserDto) {
     try {
-      const result = await this.userRepository.update({
-        id: updateUserDto.id,
-        role: {
-          name: 'EMPLOYEE',
-        }
-      }, {
+      const result = await this.userRepository.update(updateUserDto.id, {
         firstName: updateUserDto.firstName,
         lastName: updateUserDto.lastName,
         email: updateUserDto.email,
@@ -128,6 +123,7 @@ export class UsersService {
       return result.affected === 1;
     } catch (error: any) {
       console.log('====');
+      console.log(error)
       console.error(error?.driverError?.detail);
       console.log('====');
       if (error?.driverError?.detail?.includes('already exists')) {
