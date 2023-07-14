@@ -9,6 +9,7 @@ import {
   Post,
   Body,
   Response,
+  Query,
 } from 'tsoa';
 import { User } from './entities/user.entity';
 import { SuccessResponse, BadRequestError } from '../constants/response';
@@ -106,11 +107,12 @@ export class UsersController extends Controller {
 
   /**
    * List employee account (STAFF only)
+   * @param departmentId The id of department
    */
     @Security('api_key', ['STAFF'])
     @Get('list')
-    public async list() {
-      const result = await this.userService.getAll();
+    public async list(@Query() departmentId: UUID) {
+      const result = await this.userService.getAll(departmentId);
 
       if (result == null)
         throw new BadRequestError('Fail to list employee accounts.');

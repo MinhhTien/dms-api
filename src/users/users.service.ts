@@ -62,11 +62,14 @@ export class UsersService {
     }
   }
 
-  public async getAll() {
+  public async getAll(departmentId: UUID) {
     try {
       const users = await this.userRepository.find({
         where: {
           status: UserStatus.ACTIVE,
+          department: {
+            id: departmentId,
+          },
         }
       });
       return users;
