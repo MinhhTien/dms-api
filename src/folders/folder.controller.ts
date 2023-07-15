@@ -34,7 +34,7 @@ export class FolderController extends Controller {
    * If user is EMPLOYEE, only get folder in own department.
    * @param id The id of folder
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<Folder>(200)
   @Response<BadRequestError>(400)
@@ -50,10 +50,10 @@ export class FolderController extends Controller {
   }
 
   /**
-   * Retrieves folder QRcode.(STAFF only)
+   * Retrieves folder QRcode.(MANAGER only)
    * @param id The id of folder
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Get('/barcode/:id')
   @Response<Folder>(200)
   @Response<BadRequestError>(400)
@@ -72,7 +72,7 @@ export class FolderController extends Controller {
    * If user is EMPLOYEE, only get folders of locker in own department.
    * @param lockerId The id of locker
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('')
   @Response<Folder[]>(200)
   public async getMany(@Request() request: any, @Query() lockerId: UUID) {
@@ -88,9 +88,9 @@ export class FolderController extends Controller {
   }
 
   /**
-   * Create locker (STAFF only)
+   * Create locker (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Post('')
   public async create(@Body() body: CreateFolderDto) {
     const result = await this.folderService.create(body);
@@ -103,9 +103,9 @@ export class FolderController extends Controller {
   }
 
   /**
-   * Update folder (STAFF only)
+   * Update folder (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Put('')
   public async update(@Body() body: UpdateFolderDto) {
     const result = await this.folderService.update(body);
@@ -118,11 +118,11 @@ export class FolderController extends Controller {
   }
 
   /**
-   * Delete folder (STAFF only)
+   * Delete folder (MANAGER only)
    * If folder has documents, delete will be failed.
    * @param id The id of folder
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Delete('{id}')
   public async delete(@Path() id: UUID) {
     // need validate if folder has documents

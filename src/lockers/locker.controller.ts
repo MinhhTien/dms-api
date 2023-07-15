@@ -33,7 +33,7 @@ export class LockerController extends Controller {
    * If user is EMPLOYEE, only get locker of room in own department.
    * @param id The id of room
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<Locker>(200)
   @Response<BadRequestError>(400)
@@ -53,7 +53,7 @@ export class LockerController extends Controller {
    * If user is EMPLOYEE, only get lockers of room in own department.
    * @param roomId The id of room
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('')
   @Response<Locker[]>(200)
   public async getMany(@Request() request: any, @Query() roomId: UUID) {
@@ -69,9 +69,9 @@ export class LockerController extends Controller {
   }
 
   /**
-   * Create locker (STAFF only)
+   * Create locker (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Post('')
   public async create(@Body() body: CreateLockerDto) {
     const result = await this.lockerService.create(body);
@@ -84,9 +84,9 @@ export class LockerController extends Controller {
   }
 
   /**
-   * Update locker (STAFF only)
+   * Update locker (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Put('')
   public async update(@Body() body: UpdateLockerDto) {
     const result = await this.lockerService.update(body);
@@ -99,11 +99,11 @@ export class LockerController extends Controller {
   }
 
   /**
-   * Delete locker (STAFF only)
+   * Delete locker (MANAGER only)
    * If locker has folders, delete will be failed.
    * @param id The id of locker
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Delete('{id}')
   public async delete(@Path() id: UUID) {
     // need validate if locker has folders

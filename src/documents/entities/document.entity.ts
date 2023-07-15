@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -17,15 +18,13 @@ import { BorrowRequest } from '../../borrow_requests/entities/borrow_request.ent
 import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
+@Index(['name', 'status'], { unique: true })
 @Check('"num_of_pages" > 0')
 export class Document {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    unique: true,
-    nullable: false,
-  })
+  @Column()
   name: string;
 
   @Column({

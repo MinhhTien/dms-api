@@ -14,11 +14,11 @@ export class FindBorrowRequestDto {
   status?: RequestStatus;
 
   /**
-   * Just for STAFF role
+   * Just for MANAGER role
    * @isUUID
    * @isString
    */
-  documentId?: UUID
+  documentId?: UUID;
 
   /**
    * Default 10

@@ -38,10 +38,10 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * Retrieves document barcode.(STAFF only)
+   * Retrieves document barcode.(MANAGER only)
    * @param id The id of document
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Get('/barcode/:id')
   @Response<Document>(200)
   @Response<BadRequestError>(400)
@@ -64,7 +64,7 @@ export class DocumentController extends Controller {
    * If user is EMPLOYEE, only get stored documents of folder in own department.
    * @param folderId The id of folder (optional)
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('')
   @Response<Document[]>(200)
   public async getMany(
@@ -87,7 +87,7 @@ export class DocumentController extends Controller {
    * Count documents.
    * If user is EMPLOYEE, only count documents in own department.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('count')
   @Response<number>(200)
   public async count(@Request() request: any) {
@@ -103,10 +103,10 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * Retrieves pending documents waiting for confirmation. (PENDING status) (STAFF only)
+   * Retrieves pending documents waiting for confirmation. (PENDING status) (MANAGER only)
    * @param folderId The id of folder (optional)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Get('pending')
   @Response<Document[]>(200)
   public async getManyPending(@Queries() dto: FindDocumentDto) {
@@ -126,7 +126,7 @@ export class DocumentController extends Controller {
    * If user is EMPLOYEE, only get document in own department.
    * @param id The id of document
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<Document>(200)
   @Response<BadRequestError>(400)
@@ -150,10 +150,10 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * Create new document (STAFF only)
+   * Create new document (MANAGER only)
    */
   @Post('')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async create(
     @Request() request: any,
@@ -173,10 +173,10 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * Update document (STAFF only)
+   * Update document (MANAGER only)
    */
   @Put('')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async update(
     @Request() request: any,
@@ -199,7 +199,7 @@ export class DocumentController extends Controller {
    * if employee, only upload file for pending document of own import request
    */
   @Post('upload/:id')
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Response<SuccessResponse>(200)
   public async upload(
     @Request() request: any,
@@ -216,11 +216,17 @@ export class DocumentController extends Controller {
             request.user.department.id,
             true
           )
-        : await this.documentService.getOne(id, [
-            DocumentStatus.AVAILABLE,
-            DocumentStatus.BORROWED,
-            DocumentStatus.PENDING,
-          ], undefined, undefined, true);
+        : await this.documentService.getOne(
+            id,
+            [
+              DocumentStatus.AVAILABLE,
+              DocumentStatus.BORROWED,
+              DocumentStatus.PENDING,
+            ],
+            undefined,
+            undefined,
+            true
+          );
     if (document == null) {
       fs.unlink(__dirname + '/../../../uploads/' + file.filename, (err) => {
         if (err) console.log(err);
@@ -247,10 +253,10 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * After scan location of document. Confirm document is located in correct place (STAFF only)
+   * After scan location of document. Confirm document is located in correct place (MANAGER only)
    */
   @Post('confirm')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async confirm(
     @Request() request: any,
@@ -273,41 +279,51 @@ export class DocumentController extends Controller {
   }
 
   /**
-   * Check can Return borrowed document (STAFF only)
+   * Check can Return borrowed document (MANAGER only)
    * if return Success, 'Document can be returned on time'.
    * if return Warning, 'Document can be returned but late'.
    * Then FE will show popup to confirm to continue return or not. Then use return() API function below.
    */
-    @Post('check-return')
-    @Security('api_key', ['STAFF'])
-    @Response<SuccessResponse>(200)
-    public async checkReturn(@Body() verifyReturnDocumentDto: VerifyReturnDocumentDto) {
-      console.log(base64toUUID(verifyReturnDocumentDto.QRCode));
-      const documentId = base64toUUID(verifyReturnDocumentDto.QRCode);
-      const result = await this.documentService.checkReturn(documentId);
-  
-      if (result === true)
-        return new SuccessResponse('Success', 'Document can be returned on time.');
-      if (result === null) throw new BadRequestError('Invalid QR code');
-      else return new SuccessResponse('Warning', result);
-    }
+  @Post('check-return')
+  @Security('api_key', ['MANAGER'])
+  @Response<SuccessResponse>(200)
+  public async checkReturn(
+    @Body() verifyReturnDocumentDto: VerifyReturnDocumentDto
+  ) {
+    console.log(base64toUUID(verifyReturnDocumentDto.QRCode));
+    const documentId = base64toUUID(verifyReturnDocumentDto.QRCode);
+    const result = await this.documentService.checkReturn(documentId);
+
+    if (result === true)
+      return new SuccessResponse(
+        'Success',
+        'Document can be returned on time.'
+      );
+    if (result === null) throw new BadRequestError('Invalid QR code');
+    else return new SuccessResponse('Warning', result);
+  }
 
   /**
-   * Return borrowed document (STAFF only)
+   * Return borrowed document (MANAGER only)
    */
-    @Post('return')
-    @Security('api_key', ['STAFF'])
-    @Response<SuccessResponse>(200)
-    public async return(@Request() request: any, @Body() verifyReturnDocumentDto: VerifyReturnDocumentDto) {
-      console.log(base64toUUID(verifyReturnDocumentDto.QRCode));
-      const documentId = base64toUUID(verifyReturnDocumentDto.QRCode);
-      const result = await this.documentService.return(documentId, request.user);
-  
-      if (result)
-        return new SuccessResponse('Success', 'Document was returned successfully.');
-      else
-        throw new BadRequestError('Failed to return document.');
-    }
+  @Post('return')
+  @Security('api_key', ['MANAGER'])
+  @Response<SuccessResponse>(200)
+  public async return(
+    @Request() request: any,
+    @Body() verifyReturnDocumentDto: VerifyReturnDocumentDto
+  ) {
+    console.log(base64toUUID(verifyReturnDocumentDto.QRCode));
+    const documentId = base64toUUID(verifyReturnDocumentDto.QRCode);
+    const result = await this.documentService.return(documentId, request.user);
+
+    if (result)
+      return new SuccessResponse(
+        'Success',
+        'Document was returned successfully.'
+      );
+    else throw new BadRequestError('Failed to return document.');
+  }
 }
 
 @injectable()
@@ -318,64 +334,65 @@ export class StaticController extends Controller {
     super();
   }
 
-     /**
+  /**
    * Check a static file of document.
    * If user is EMPLOYEE, only check document in own department.
    * @param id The id of document
    */
-     @Security('api_key', ['STAFF', 'EMPLOYEE'])
-     @Get('check/:id')
-     @Response<BadRequestError>(400)
-     public async checkMedia(@Path() id: string, @Request() request: any) {
-       const document =
-         request.user.role.name === 'EMPLOYEE'
-           ? await this.documentService.getOne(
-               id,
-               [
-                 DocumentStatus.AVAILABLE,
-                 DocumentStatus.BORROWED,
-                 DocumentStatus.PENDING,
-                 DocumentStatus.REQUESTING,
-               ],
-               undefined,
-               request.user.department.id,
-               true
-             )
-           : await this.documentService.getOne(
-               id,
-               [
-                 DocumentStatus.AVAILABLE,
-                 DocumentStatus.BORROWED,
-                 DocumentStatus.PENDING,
-                 DocumentStatus.REQUESTING,
-               ],
-               undefined,
-               undefined,
-               true
-             );
-       if (document == null) return new SuccessResponse('Document not existed.', false)
-       if (document.storageUrl == null)
-         return new SuccessResponse('File not existed.', false)
-       const filePath = resolve(
-         __dirname,
-         '../../../',
-         'uploads',
-         document.storageUrl
-       );
-   
-       console.log(filePath);
-       if (!fs.existsSync(filePath)) {
-         return new SuccessResponse('File not found.', false)
-       }
-       return new SuccessResponse('Success', true)
-     }
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
+  @Get('check/:id')
+  @Response<BadRequestError>(400)
+  public async checkMedia(@Path() id: string, @Request() request: any) {
+    const document =
+      request.user.role.name === 'EMPLOYEE'
+        ? await this.documentService.getOne(
+            id,
+            [
+              DocumentStatus.AVAILABLE,
+              DocumentStatus.BORROWED,
+              DocumentStatus.PENDING,
+              DocumentStatus.REQUESTING,
+            ],
+            undefined,
+            request.user.department.id,
+            true
+          )
+        : await this.documentService.getOne(
+            id,
+            [
+              DocumentStatus.AVAILABLE,
+              DocumentStatus.BORROWED,
+              DocumentStatus.PENDING,
+              DocumentStatus.REQUESTING,
+            ],
+            undefined,
+            undefined,
+            true
+          );
+    if (document == null)
+      return new SuccessResponse('Document not existed.', false);
+    if (document.storageUrl == null)
+      return new SuccessResponse('File not existed.', false);
+    const filePath = resolve(
+      __dirname,
+      '../../../',
+      'uploads',
+      document.storageUrl
+    );
+
+    console.log(filePath);
+    if (!fs.existsSync(filePath)) {
+      return new SuccessResponse('File not found.', false);
+    }
+    return new SuccessResponse('Success', true);
+  }
 
   /**
    * Retrieves a static file of document.
    * If user is EMPLOYEE, only get document in own department.
    * @param id The id of document
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<BadRequestError>(400)
   @Produces('application/pdf')
