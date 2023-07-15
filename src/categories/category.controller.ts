@@ -14,7 +14,11 @@ import {
 } from 'tsoa';
 import { CategoryService } from './category.service';
 import { BadRequestError, SuccessResponse } from './../constants/response';
-import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from './dtos/category.dto';
+import {
+  CategoryDto,
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from './dtos/category.dto';
 import { UUID } from '../lib/global.type';
 import { Category } from './entities/category.entity';
 
@@ -32,7 +36,7 @@ export class CategoryController extends Controller {
    * Retrieves all categories.
    * @param departmentId The id of department (optional)
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('')
   @Response<SuccessResponse>(200)
   public async getAll(@Query() departmentId?: UUID) {
@@ -50,7 +54,7 @@ export class CategoryController extends Controller {
    * Retrieves a category.
    * @param id The id of category
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('{id}')
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
@@ -67,9 +71,9 @@ export class CategoryController extends Controller {
   }
 
   /**
-   * Create new category.(STAFF only)
+   * Create new category.(MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   @Post()
   public async create(@Body() body: CreateCategoryDto) {
@@ -77,14 +81,15 @@ export class CategoryController extends Controller {
     if (result instanceof Category) {
       return new SuccessResponse('Category was created successfully.', result);
     }
-    if (result == null) throw new BadRequestError('Category could not be created.');
+    if (result == null)
+      throw new BadRequestError('Category could not be created.');
     else throw new BadRequestError(result);
   }
 
   /**
-   * Update category.(STAFF only)
+   * Update category.(MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
   @Put()
@@ -99,10 +104,10 @@ export class CategoryController extends Controller {
   }
 
   /**
-   * Delete category.(STAFF only)
+   * Delete category.(MANAGER only)
    * @param id The id of category
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   @Response<BadRequestError>(400)
   @Delete('{id}')

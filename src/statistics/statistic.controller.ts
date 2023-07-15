@@ -13,9 +13,9 @@ export class StatisticController extends Controller {
   }
 
   /**
-   * Import Statistic By Department.(STAFF only)
+   * Import Statistic By Department.(MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Get('import')
   public async importStatisticByDepartment() {
     const result = await this.statisticService.statisticByDepartment(
@@ -25,9 +25,9 @@ export class StatisticController extends Controller {
   }
 
   /**
-   * Borrow Statistic By Department.(STAFF only)
+   * Borrow Statistic By Department.(MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Get('borrow')
   public async borrowStatisticByDepartment() {
     const result = await this.statisticService.statisticByDepartment(
@@ -40,7 +40,7 @@ export class StatisticController extends Controller {
    * Document Summary.
    * if Employee, return summary of his department.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('document-summary')
   public async documentSummary(@Request() request: any) {
     const result = await this.statisticService.documentSummary(request.user.role.name === 'EMPLOYEE'
@@ -53,7 +53,7 @@ export class StatisticController extends Controller {
    * Space Summary.
    * if Employee, return summary space of his department.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('space-summary')
   public async documentSpace(@Request() request: any) {
     const result = await this.statisticService.documentSpace(request.user.role.name === 'EMPLOYEE'
@@ -67,7 +67,7 @@ export class StatisticController extends Controller {
    * if Employee, Import request report of his department.
    * @param year Year of report.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('status-import-request/:year')
   public async importRequestReport(@Path() year: number, @Request() request: any) {
     const result = await this.statisticService.importRequestReport(year, request.user.role.name === 'EMPLOYEE'
@@ -81,7 +81,7 @@ export class StatisticController extends Controller {
    * if Employee, Borrow request report of his department.
    * @param year Year of report.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('status-borrow-request/:year')
   public async borrowRequestReport(@Path() year: number, @Request() request: any) {
     const result = await this.statisticService.borrowRequestReport(year, request.user.role.name === 'EMPLOYEE'
@@ -95,7 +95,7 @@ export class StatisticController extends Controller {
    * if Employee, Request Monthly report of his department.
    * @param year Year of report.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('request-monthly-report/:year')
   public async requestMonthlyReport(@Path() year: number, @Request() request: any) {
     const result = await this.statisticService.requestMonthlyReport(year, request.user.role.name === 'EMPLOYEE'

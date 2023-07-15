@@ -34,7 +34,7 @@ export class UsersController extends Controller {
   /**
    * Retrieve own user information
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('own')
   public getUser(@Request() request: any): User {
     return request.user;
@@ -43,7 +43,7 @@ export class UsersController extends Controller {
   /**
    * Login
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('login')
   public login(@Request() request: any): SuccessResponse | BadRequestError {
     if (request.user) return new SuccessResponse('Login success', null);
@@ -53,7 +53,7 @@ export class UsersController extends Controller {
   /**
    * Logout
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('logout')
   public async logout(
     @Request() request: any
@@ -70,7 +70,7 @@ export class UsersController extends Controller {
    * Count members
    * if EMPLOYEE, count all members in own department
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('count')
   @Response<number>(200)
   public async count(@Request() request: any) {
@@ -87,7 +87,7 @@ export class UsersController extends Controller {
   /**
    * Get user profile
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('profile/:id')
   public async getProfile(@Path() id: UUID) {
     const result = await this.userService.getProfile(id);
@@ -98,7 +98,7 @@ export class UsersController extends Controller {
   /**
    * Revoke refresh token
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Post('revoke-refresh-token')
   public async revokeRefreshToken(@Request() request: any) {
     const result = await this.userService.revokeRefreshToken(
@@ -109,23 +109,23 @@ export class UsersController extends Controller {
   }
 
   /**
-   * List employee account (STAFF only)
+   * List employee account (MANAGER only)
    * @param departmentId The id of department
    */
-    @Security('api_key', ['STAFF'])
-    @Get('list')
-    public async list(@Query() departmentId: UUID) {
-      const result = await this.userService.getAll(departmentId);
+  @Security('api_key', ['MANAGER'])
+  @Get('list')
+  public async list(@Query() departmentId: UUID) {
+    const result = await this.userService.getAll(departmentId);
 
-      if (result == null)
-        throw new BadRequestError('Fail to list employee accounts.');
-      return new SuccessResponse('Success', result);
-    }
+    if (result == null)
+      throw new BadRequestError('Fail to list employee accounts.');
+    return new SuccessResponse('Success', result);
+  }
 
   /**
-   * Create new employee account (STAFF only)
+   * Create new employee account (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Post('')
   public async create(@Body() createUserDto: CreateUserDto) {
     const result = await this.userService.create(createUserDto);
@@ -138,9 +138,9 @@ export class UsersController extends Controller {
   }
 
   /**
-   * Update employee account (STAFF only)
+   * Update employee account (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Put('')
   public async update(@Body() updateUserDto: UpdateUserDto) {
     const result = await this.userService.updateProfile(updateUserDto);
@@ -153,10 +153,10 @@ export class UsersController extends Controller {
   }
 
   /**
-   * Disable account (STAFF only)
+   * Disable account (MANAGER only)
    * @param id id of employee
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Delete('disable/:id')
   public async disable(@Path() id: UUID) {
     const result = await this.userService.disable(id);
@@ -165,10 +165,10 @@ export class UsersController extends Controller {
   }
 
   /**
-   * Enable account (STAFF only)
+   * Enable account (MANAGER only)
    * @param id id of employee
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Post('enable/:id')
   public async enable(@Path() id: UUID) {
     const result = await this.userService.enable(id);
@@ -177,10 +177,10 @@ export class UsersController extends Controller {
   }
 
   /**
-   * Delete account (STAFF only)
+   * Delete account (MANAGER only)
    * @param id id of employee
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Post('delete/:id')
   public async delete(@Path() id: UUID) {
     const result = await this.userService.delete(id);

@@ -31,9 +31,9 @@ export class ImportRequestController extends Controller {
   }
 
   /**
-   * Retrieves All Import Requests. (STAFF only)
+   * Retrieves All Import Requests. (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Get('')
   @Response<ImportRequest[]>(200)
   public async getMany(@Queries() findImportRequestDto: FindImportRequestDto) {
@@ -67,7 +67,7 @@ export class ImportRequestController extends Controller {
    * If user is EMPLOYEE, only retrieves own import request.
    * @param id The id of import request
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<ImportRequest>(200)
   @Response<BadRequestError>(400)
@@ -110,11 +110,11 @@ export class ImportRequestController extends Controller {
   }
 
   /**
-   * Accept import request (STAFF only)
+   * Accept import request (MANAGER only)
    * @param id The id of import request
    */
   @Post('accept/:id')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async accept(@Request() request: any, @Path() id: UUID) {
     const result = await this.importRequestService.accept(id, request.user);
@@ -127,11 +127,11 @@ export class ImportRequestController extends Controller {
   }
 
   /**
-   * Verify accepted import request (STAFF only)
+   * Verify accepted import request (MANAGER only)
    * @param id The id of import request
    */
   @Post('verify')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async verify(
     @Request() request: any,
@@ -152,10 +152,10 @@ export class ImportRequestController extends Controller {
   }
 
   /**
-   * Reject import request (STAFF only)
+   * Reject import request (MANAGER only)
    */
   @Post('reject')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async reject(
     @Request() request: any,

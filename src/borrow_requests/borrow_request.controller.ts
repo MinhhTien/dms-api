@@ -31,9 +31,9 @@ export class BorrowRequestController extends Controller {
   }
 
   /**
-   * Retrieves All Borrow Request of a document. (STAFF only)
+   * Retrieves All Borrow Request of a document. (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Get('')
   @Response<BorrowRequest[]>(200)
   public async getManyOfDocument(
@@ -70,7 +70,7 @@ export class BorrowRequestController extends Controller {
    * If user is EMPLOYEE, only retrieves own borrow request.
    * @param id The id of borrow request
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<BorrowRequest>(200)
   @Response<BadRequestError>(400)
@@ -107,10 +107,10 @@ export class BorrowRequestController extends Controller {
   }
 
   /**
-   * Accept borrow request (STAFF only)
+   * Accept borrow request (MANAGER only)
    */
   @Post('accept/:id')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async accept(@Request() request: any, @Path() id: UUID) {
     const result = await this.borrowRequestService.accept(id, request.user);
@@ -123,15 +123,21 @@ export class BorrowRequestController extends Controller {
   }
 
   /**
-   * Verify accepted borrow request (STAFF only)
+   * Verify accepted borrow request (MANAGER only)
    */
   @Post('verify')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
-  public async verify(@Request() request: any, @Body() verifyBorrowRequestDto: VerifyBorrowRequestDto) {
+  public async verify(
+    @Request() request: any,
+    @Body() verifyBorrowRequestDto: VerifyBorrowRequestDto
+  ) {
     console.log(base64toUUID(verifyBorrowRequestDto.QRCode));
     const borrowRequestId = base64toUUID(verifyBorrowRequestDto.QRCode);
-    const result = await this.borrowRequestService.verify(borrowRequestId, request.user);
+    const result = await this.borrowRequestService.verify(
+      borrowRequestId,
+      request.user
+    );
 
     if (result instanceof BorrowRequest)
       return new SuccessResponse('Success', true);
@@ -141,10 +147,10 @@ export class BorrowRequestController extends Controller {
   }
 
   /**
-   * Reject borrow request (STAFF only)
+   * Reject borrow request (MANAGER only)
    */
   @Post('reject')
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async reject(
     @Request() request: any,

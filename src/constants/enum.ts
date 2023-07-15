@@ -5,7 +5,7 @@ export enum UserStatus {
 }
 
 export enum RoleType {
-  STAFF = 'STAFF',
+  MANAGER = 'MANAGER',
   EMPLOYEE = 'EMPLOYEE',
 }
 

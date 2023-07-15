@@ -33,7 +33,7 @@ export class DepartmentController extends Controller {
   /**
    * Retrieves departments.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('')
   @Response<Department[]>(200)
   public async getMany() {
@@ -46,21 +46,18 @@ export class DepartmentController extends Controller {
   /**
    * Count departments.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('count')
   @Response<number>(200)
   public async count() {
-    return new SuccessResponse(
-      'Success',
-      await this.departmentService.count()
-    );
+    return new SuccessResponse('Success', await this.departmentService.count());
   }
 
   /**
    * Retrieves a department.
    * @param id The id of department
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<Department>(200)
   @Response<BadRequestError>(400)
@@ -71,9 +68,9 @@ export class DepartmentController extends Controller {
   }
 
   /**
-   * Creates a department. (STAFF only)
+   * Creates a department. (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Post('')
   public async create(@Body() body: CreateDepartmentDto) {
     const result = await this.departmentService.create(body);
@@ -86,9 +83,9 @@ export class DepartmentController extends Controller {
   }
 
   /**
-   * Updates a department. (STAFF only)
+   * Updates a department. (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Put('')
   public async update(@Body() body: UpdateDepartmentDto) {
     const result = await this.departmentService.update(body);
@@ -102,10 +99,10 @@ export class DepartmentController extends Controller {
   }
 
   /**
-   * Deletes a department. (STAFF only)
+   * Deletes a department. (MANAGER only)
    * @param id The id of department
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Delete('{id}')
   public async delete(@Path() id: UUID) {
     const result = await this.departmentService.delete(id);
@@ -132,7 +129,7 @@ export class TreeDocument extends Controller {
   /**
    * Retrieves tree location.
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('')
   @Response<SuccessResponse>(200)
   public async getMany(@Request() request: any) {

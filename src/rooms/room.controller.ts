@@ -33,7 +33,7 @@ export class RoomController extends Controller {
    * If user is EMPLOYEE, only get room of own department.
    * @param id The id of room
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('/:id')
   @Response<Room>(200)
   @Response<BadRequestError>(400)
@@ -51,9 +51,9 @@ export class RoomController extends Controller {
   /**
    * Retrieves rooms (of department if departmentId is provided).
    * If user is EMPLOYEE, only get rooms of own department.
-   * @param departmentId The id of department (STAFF only)
+   * @param departmentId The id of department (MANAGER only)
    */
-  @Security('api_key', ['STAFF', 'EMPLOYEE'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('')
   @Response<Room[]>(200)
   public async getMany(@Request() request: any, @Query() departmentId: UUID) {
@@ -68,9 +68,9 @@ export class RoomController extends Controller {
   }
 
   /**
-   * Create room (STAFF only)
+   * Create room (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Post('')
   public async create(@Body() body: CreateRoomDto) {
     const result = await this.roomService.create(body);
@@ -82,9 +82,9 @@ export class RoomController extends Controller {
   }
 
   /**
-   * Update room (STAFF only)
+   * Update room (MANAGER only)
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Put('')
   public async update(@Body() body: UpdateRoomDto) {
     const result = await this.roomService.update(body);
@@ -97,11 +97,11 @@ export class RoomController extends Controller {
   }
 
   /**
-   * Delete room (STAFF only)
+   * Delete room (MANAGER only)
    * If room has lockers, delete will be failed.
    * @param id The id of room
    */
-  @Security('api_key', ['STAFF'])
+  @Security('api_key', ['MANAGER'])
   @Delete('{id}')
   public async delete(@Path() id: UUID) {
     // need validate if room has lockers
