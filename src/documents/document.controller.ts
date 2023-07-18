@@ -253,6 +253,38 @@ export class DocumentController extends Controller {
   }
 
   /**
+   * Check duplicate pdf file of document
+   * If employee, only check file for document of own department
+   */
+  @Post('duplicate')
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
+  @Response<SuccessResponse>(200)
+  public async checkDuplicate(
+    @Request() request: any,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    console.log(file);
+    const duplicatePercent = await this.documentService.checkDuplicatePercent(
+      file.filename,
+      request.user.role.name === 'EMPLOYEE'
+        ? request.user.department.id
+        : undefined
+    );
+    fs.unlink('uploads/' + file.filename, (err) => {
+      if (err) console.log(err);
+    });
+    fs.unlink('temp/' + `${file.filename.split('.')[0]}.png`, (err) => {
+      if (err) console.log(err);
+    });
+    if (duplicatePercent === null) {
+      throw new BadRequestError('Some thing went wrong. Please try again.');
+    }
+    if (duplicatePercent.duplicatePercent <= 0.9)
+      return new SuccessResponse('Success', duplicatePercent);
+    else return new SuccessResponse('Warning', duplicatePercent);
+  }
+
+  /**
    * After scan location of document. Confirm document is located in correct place (MANAGER only)
    */
   @Post('confirm')

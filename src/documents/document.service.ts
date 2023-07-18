@@ -1,6 +1,6 @@
 import { AppDataSource } from '../database/data-source';
 import { singleton } from 'tsyringe';
-import { ILike, In, Repository } from 'typeorm';
+import { ILike, In, IsNull, Not, Repository } from 'typeorm';
 import { Document } from './entities/document.entity';
 import { CreateDocumentDto } from './dtos/create-document.dto';
 import { User } from '../users/entities/user.entity';
@@ -11,6 +11,7 @@ import { Category } from '../categories/entities/category.entity';
 import { FindDocumentDto } from './dtos/find-document.dto';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { addDays } from '../lib/utils';
+import { compareImage, convert } from '../lib/file';
 
 @singleton()
 export class DocumentService {
@@ -45,9 +46,11 @@ export class DocumentService {
             },
           }),
           ...(status && { status: In(status) }),
-          ...(createdBy && { createdBy: {
-            id: createdBy.id,
-          } }),
+          ...(createdBy && {
+            createdBy: {
+              id: createdBy.id,
+            },
+          }),
         },
         relations: {
           folder: {
@@ -123,7 +126,7 @@ export class DocumentService {
           updatedAt: sortASC ? 'ASC' : 'DESC',
           createdAt: sortASC ? 'ASC' : 'DESC',
         },
-        ...!skipPagination && {take: take, skip: skip},
+        ...(!skipPagination && { take: take, skip: skip }),
       });
       return { data: result, total: total };
     } catch (error) {
@@ -186,11 +189,12 @@ export class DocumentService {
       if (folder) {
         if (
           folder.documents
-          .filter((document) => [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(document.status))
-          .reduce(
-            (sum, document) => sum + document.numOfPages,
-            0
-          ) +
+            .filter((document) =>
+              [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(
+                document.status
+              )
+            )
+            .reduce((sum, document) => sum + document.numOfPages, 0) +
             createDocumentDto.numOfPages >
           folder.capacity
         ) {
@@ -284,6 +288,60 @@ export class DocumentService {
     }
   }
 
+  public async checkDuplicatePercent(fileName: string, departmentId?: UUID) {
+    try {
+      await convert(fileName);
+      const documentList = await this.documentRepository.find({
+        where: {
+          status: In([
+            DocumentStatus.AVAILABLE,
+            DocumentStatus.BORROWED,
+            DocumentStatus.PENDING,
+            DocumentStatus.REQUESTING,
+          ]),
+          storageUrl: Not(IsNull()),
+          ...(departmentId && {
+            folder: {
+              locker: {
+                room: {
+                  department: {
+                    id: departmentId,
+                  },
+                },
+              },
+            },
+          }),
+        },
+        select: ['id', 'storageUrl'],
+      });
+      if (documentList.length === 0)
+        return {
+          id: null,
+          duplicatePercent: 0,
+        };
+
+      await Promise.all(documentList.map((document) => {
+          convert(document.storageUrl);
+        }))
+
+      const compareImageList = await Promise.all(
+        documentList.map((document) =>
+          compareImage(fileName, document.storageUrl, document.id)
+        )
+      );
+
+      console.log(compareImageList);
+
+      const max = compareImageList.reduce((prev, current) =>
+        prev.duplicatePercent > current.duplicatePercent ? prev : current
+      );
+      return max;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
   public async confirm(documentId: UUID, folderId: UUID, updatedBy: User) {
     try {
       const result = await this.documentRepository.update(
@@ -321,9 +379,11 @@ export class DocumentService {
         return null;
       }
       const borrowRequest = document.borrowRequests.find(
-        (request) => request.status === RequestStatus.DONE && 
-        request.startDate <= new Date() && addDays(request.startDate, request.borrowDuration) >= new Date()
-      )
+        (request) =>
+          request.status === RequestStatus.DONE &&
+          request.startDate <= new Date() &&
+          addDays(request.startDate, request.borrowDuration) >= new Date()
+      );
       if (!borrowRequest) {
         return 'Document can be returned but late.';
       }

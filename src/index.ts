@@ -52,6 +52,7 @@ app.use(
 );
 
 app.post('/documents/upload/:id', multerUpload.single('file'));
+app.post('/documents/duplicate', multerUpload.single('file'));
 
 initialize();
 RegisterRoutes(app);

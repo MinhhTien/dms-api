@@ -18,9 +18,11 @@ services:
       - dms_net
     volumes:
       - dms-upload:/DMS-Server/uploads
+      - dms-temp:/DMS-Server/temp
     
 networks:
   dms_net:
     driver: bridge
 volumes:
   dms-upload:
+  dms-temp:
