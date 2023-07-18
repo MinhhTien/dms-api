@@ -297,6 +297,11 @@ export class DocumentController extends Controller {
     console.log(base64toUUID(confirmDocumentDto.locationQRcode));
     const folderId = base64toUUID(confirmDocumentDto.locationQRcode);
 
+    const document = await this.documentService.getOne(confirmDocumentDto.id, [
+      DocumentStatus.PENDING,
+    ]);
+    if (document == null) throw new BadRequestError('Document not existed.');
+
     const result = await this.documentService.confirm(
       confirmDocumentDto.id,
       folderId,
@@ -304,10 +309,20 @@ export class DocumentController extends Controller {
     );
 
     if (result) return new SuccessResponse('Success', result);
-    else
+    else {
+      const location =
+        document.folder.locker.room.department.name +
+        ', ' +
+        document.folder.locker.room.name +
+        ', ' +
+        document.folder.locker.name +
+        ', ' +
+        document.folder.name;
       throw new BadRequestError(
-        'Failed to confirm document is placed in correct place.'
+        'Failed to confirm document is placed in correct place. Correct place is ' +
+          location
       );
+    }
   }
 
   /**
