@@ -87,12 +87,13 @@ export class DocumentService {
     status: DocumentStatus[],
     dto: FindDocumentDto,
     departmentId?: UUID,
-    sortASC?: boolean
+    sortDateDESC?: boolean
   ) {
     const take = dto.take || 10;
     const page = dto.page || 1;
     const skip = (page - 1) * take;
     const keyword = dto.keyword || '';
+    const sortName = dto.sortName;
     const skipPagination = dto.skipPagination || 0;
     try {
       const [result, total] = await this.documentRepository.findAndCount({
@@ -123,8 +124,11 @@ export class DocumentService {
           category: true,
         },
         order: {
-          updatedAt: sortASC ? 'ASC' : 'DESC',
-          createdAt: sortASC ? 'ASC' : 'DESC',
+          ...(sortDateDESC && {
+            updatedAt: sortDateDESC ? 'DESC' : 'ASC',
+            createdAt: sortDateDESC ? 'DESC' : 'ASC',
+          }),
+          name: sortName ? 'ASC' : 'DESC',
         },
         ...(!skipPagination && { take: take, skip: skip }),
       });
@@ -320,9 +324,11 @@ export class DocumentService {
           duplicatePercent: 0,
         };
 
-      await Promise.all(documentList.map((document) => {
+      await Promise.all(
+        documentList.map((document) => {
           convert(document.storageUrl);
-        }))
+        })
+      );
 
       const compareImageList = await Promise.all(
         documentList.map((document) =>

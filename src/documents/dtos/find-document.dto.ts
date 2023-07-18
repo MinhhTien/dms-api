@@ -38,6 +38,16 @@ export class FindDocumentDto {
    * @minimum 0
    * @maximum 1
    * @isInt
+   * @default 1
+   * @optional
+   */
+  sortName?: number;
+
+  /**
+   * @isNumber
+   * @minimum 0
+   * @maximum 1
+   * @isInt
    * @default 0
    * @optional
    */
