@@ -107,7 +107,7 @@ export class UsersService {
         photoURL: user.photoURL,
       });
       if (result.affected === 1)
-        await novu.subscribers.identify(id, {
+        await novu.subscribers.update(id, {
           avatar: user.photoURL,
         });
       return result.affected;
@@ -126,7 +126,7 @@ export class UsersService {
         phone: updateUserDto.phone,
       });
       if (result.affected === 1)
-        await novu.subscribers.identify(updateUserDto.id, {
+        await novu.subscribers.update(updateUserDto.id, {
           email: updateUserDto.email,
           firstName: updateUserDto.firstName,
           lastName: updateUserDto.lastName,
