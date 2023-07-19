@@ -17,7 +17,7 @@ export class FolderService {
 
   public async getOne(id: UUID, departmentId?: UUID) {
     try {
-      return departmentId
+      const folder = departmentId
         ? await this.folderRepository.findOne({
             where: {
               id: id,
@@ -29,12 +29,22 @@ export class FolderService {
                 },
               },
             },
+            relations: ['documents'],
           })
         : await this.folderRepository.findOne({
             where: {
               id: id,
             },
+            relations: ['documents'],
           });
+      const current = folder?.documents
+        .filter((document) =>
+          [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(
+            document.status
+          )
+        )
+        .reduce((sum, document) => sum + document.numOfPages, 0);
+      return { ...folder, current };
     } catch (error) {
       console.log(error);
       return null;
@@ -111,11 +121,12 @@ export class FolderService {
       });
       if (currentFolder) {
         const currentNumOfPages = currentFolder.documents
-        .filter((document) => [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(document.status))
-        .reduce(
-          (sum, document) => sum + document.numOfPages,
-          0
-        );
+          .filter((document) =>
+            [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(
+              document.status
+            )
+          )
+          .reduce((sum, document) => sum + document.numOfPages, 0);
         if (folder.capacity < currentNumOfPages) {
           return 'Capacity must greater or equal to all current pages of documents.';
         }

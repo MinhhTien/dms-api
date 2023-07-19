@@ -15,7 +15,7 @@ export class RoomService {
 
   public async getOne(id: UUID, departmentId?: UUID) {
     try {
-      return departmentId
+      const room = departmentId
         ? await this.roomRepository.findOne({
             where: {
               id: id,
@@ -23,12 +23,16 @@ export class RoomService {
                 id: departmentId,
               },
             },
+            relations: ['lockers'],
           })
         : await this.roomRepository.findOne({
             where: {
               id: id,
             },
+            relations: ['lockers'],
           });
+      const current = room?.lockers.length;
+      return { ...room, current };
     } catch (error) {
       console.log(error);
       return null;
