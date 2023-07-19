@@ -189,6 +189,10 @@ export class ImportRequestService {
             status: DocumentStatus.REQUESTING,
           },
         },
+        relations: {
+          document: true,
+          createdBy: true,
+        }
       });
 
       if (!importRequest) {

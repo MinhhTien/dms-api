@@ -21,6 +21,8 @@ import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
 import { FindBorrowRequestDto } from './dtos/find_borrow_request.dto';
 import { VerifyBorrowRequestDto } from './dtos/verify_borrow_request.dto';
 import { base64toUUID } from '../lib/barcode';
+import { sendToSubscriber, sendToManagerTopic } from '../lib/notification';
+import { NotificationType } from '../constants/enum';
 
 @injectable()
 @Tags('BorrowRequest')
@@ -97,10 +99,18 @@ export class BorrowRequestController extends Controller {
       createBorrowRequestDto,
       request.user
     );
-    if (result instanceof BorrowRequest)
+    if (result instanceof BorrowRequest) {
+      const user = request.user;
+      sendToManagerTopic(
+        NotificationType.BORROW,
+        user.firstName + ' ' + user.lastName,
+        `has created a new borrow request for document ${result.document.name}. Please check it out.`
+      );
+
       return new SuccessResponse('Success', {
         id: result.id,
       });
+    }
     if (result == null)
       throw new BadRequestError('Failed to create borrow request.');
     else throw new BadRequestError(result);
@@ -115,8 +125,16 @@ export class BorrowRequestController extends Controller {
   public async accept(@Request() request: any, @Path() id: UUID) {
     const result = await this.borrowRequestService.accept(id, request.user);
 
-    if (result instanceof BorrowRequest)
+    if (result instanceof BorrowRequest) {
+      sendToSubscriber(
+        NotificationType.BORROW,
+        result.createdBy.id,
+        `Your borrow request for document ${result.document.name} has been approved.`,
+        `Please bring the generated request QRCode to the manager for verification within 3 days to receive the document`
+      );
+
       return new SuccessResponse('Success', true);
+    }
     if (result == null)
       throw new BadRequestError('Failed to accept borrow request.');
     else throw new BadRequestError(result);
@@ -161,8 +179,16 @@ export class BorrowRequestController extends Controller {
       request.user
     );
 
-    if (result instanceof BorrowRequest)
+    if (result instanceof BorrowRequest) {
+      sendToSubscriber(
+        NotificationType.BORROW,
+        result.createdBy.id,
+        `Your borrow request for document ${result.document.name} has been rejected.`,
+        `Please check reason and try again.`
+      );
+
       return new SuccessResponse('Success', true);
+    }
     if (result == null)
       throw new BadRequestError('Failed to reject borrow request.');
     else throw new BadRequestError(result);

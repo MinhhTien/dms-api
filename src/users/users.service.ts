@@ -9,6 +9,7 @@ import { redisClient } from '../index';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { Role } from './entities/role.entity';
 import { UpdateUserDto } from './dtos/update-user.dto';
+import { novu } from '../lib/notification';
 
 @singleton()
 export class UsersService {
@@ -68,12 +69,12 @@ export class UsersService {
       const users = await this.userRepository.find({
         where: {
           status: UserStatus.ACTIVE,
-          ...departmentId && {
+          ...(departmentId && {
             department: {
               id: departmentId,
             },
-          }
-        }
+          }),
+        },
       });
       return users;
     } catch (error) {
@@ -105,6 +106,10 @@ export class UsersService {
       const result = await this.userRepository.update(id, {
         photoURL: user.photoURL,
       });
+      if (result.affected === 1)
+        await novu.subscribers.update(id, {
+          avatar: user.photoURL,
+        });
       return result.affected;
     } catch (error) {
       console.log('Error fetching user data:', error);
@@ -120,10 +125,17 @@ export class UsersService {
         email: updateUserDto.email,
         phone: updateUserDto.phone,
       });
+      if (result.affected === 1)
+        await novu.subscribers.update(updateUserDto.id, {
+          email: updateUserDto.email,
+          firstName: updateUserDto.firstName,
+          lastName: updateUserDto.lastName,
+          phone: updateUserDto.phone,
+        });
       return result.affected === 1;
     } catch (error: any) {
       console.log('====');
-      console.log(error)
+      console.log(error);
       console.error(error?.driverError?.detail);
       console.log('====');
       if (error?.driverError?.detail?.includes('already exists')) {
@@ -151,6 +163,13 @@ export class UsersService {
       user.photoURL =
         'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
       const result = await this.userRepository.save(user);
+      await novu.subscribers.identify(user.id, {
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phone: user.phone,
+        avatar: user.photoURL,
+      });
       return result;
     } catch (error: any) {
       console.log('====');

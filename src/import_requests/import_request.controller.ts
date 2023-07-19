@@ -21,6 +21,8 @@ import { RejectImportRequestDto } from './dtos/reject_import_request.dto';
 import { FindImportRequestDto } from './dtos/find_import_request.dto';
 import { VerifyImportRequestDto } from './dtos/verify_import_request.dto';
 import { base64toUUID } from '../lib/barcode';
+import { sendToSubscriber, sendToManagerTopic } from '../lib/notification';
+import { NotificationType } from '../constants/enum';
 
 @injectable()
 @Tags('ImportRequest')
@@ -94,7 +96,14 @@ export class ImportRequestController extends Controller {
       createImportRequestDto,
       request.user
     );
-    if (result instanceof ImportRequest)
+    if (result instanceof ImportRequest) {
+      const user = request.user;
+      sendToManagerTopic(
+        NotificationType.IMPORT,
+        user.firstName + ' ' + user.lastName,
+        `has created a new import request about document ${result.document.name}. Please check it out.`
+      );
+
       return new SuccessResponse('Success', {
         id: result.id,
         status: result.status,
@@ -104,6 +113,7 @@ export class ImportRequestController extends Controller {
           status: result.document.status,
         },
       });
+    }
     if (result == null)
       throw new BadRequestError('Failed to create import request.');
     else throw new BadRequestError(result);
@@ -119,8 +129,16 @@ export class ImportRequestController extends Controller {
   public async accept(@Request() request: any, @Path() id: UUID) {
     const result = await this.importRequestService.accept(id, request.user);
 
-    if (result instanceof ImportRequest)
+    if (result instanceof ImportRequest) {
+      sendToSubscriber(
+        NotificationType.IMPORT,
+        result.createdBy.id,
+        `Your import request about document ${result.document.name} has been approved.`,
+        `Please bring the generated request QRCode and document to the manager for verification within 3 days.`
+      );
+
       return new SuccessResponse('Success', true);
+    }
     if (result == null)
       throw new BadRequestError('Failed to accept import request.');
     else throw new BadRequestError(result);
@@ -166,8 +184,16 @@ export class ImportRequestController extends Controller {
       request.user
     );
 
-    if (result instanceof ImportRequest)
+    if (result instanceof ImportRequest) {
+      sendToSubscriber(
+        NotificationType.IMPORT,
+        result.createdBy.id,
+        `Your import request about document ${result.document.name} has been rejected.`,
+        `Please check reason and try again.`
+      );
+
       return new SuccessResponse('Success', true);
+    }
     if (result == null)
       throw new BadRequestError('Failed to reject import request.');
     else throw new BadRequestError(result);
