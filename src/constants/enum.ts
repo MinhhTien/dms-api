@@ -25,3 +25,9 @@ export enum RequestStatus {
   DONE = 'DONE',
   EXPIRED = 'EXPIRED',
 }
+
+export enum NotificationType {
+  IMPORT = 'IMPORT',
+  BORROW = 'BORROW',
+  PENDING = 'PENDING',
+}

@@ -16,6 +16,7 @@
    "author": "",
    "license": "ISC",
    "dependencies": {
+      "@novu/node": "^0.16.4",
       "body-parser": "^1.20.2",
       "combine-image": "^1.0.3",
       "cors": "^2.8.5",
@@ -25,6 +26,7 @@
       "jimp": "^0.22.8",
       "multer": "^1.4.3",
       "node-cron": "^3.0.2",
+      "novu": "^0.16.4",
       "pdf-img-convert": "^1.2.1",
       "pg": "^8.11.0",
       "redis": "^4.6.7",
