@@ -370,6 +370,25 @@ export class DocumentService {
     }
   }
 
+  public async deletePendingDocument(documentId: UUID, updatedBy: User) {
+    try {
+      const result = await this.documentRepository.update(
+        {
+          id: documentId,
+          status: DocumentStatus.PENDING,
+        },
+        {
+          status: DocumentStatus.DELETED,
+          updatedBy: updatedBy,
+        }
+      );
+      return result.affected === 1;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
   public async checkReturn(id: UUID) {
     try {
       const document = await this.documentRepository.findOne({

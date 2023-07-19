@@ -14,6 +14,7 @@ import {
   Queries,
   Produces,
   Put,
+  Delete,
 } from 'tsoa';
 import { BadRequestError, SuccessResponse } from '../constants/response';
 import { injectable } from 'tsyringe';
@@ -321,6 +322,26 @@ export class DocumentController extends Controller {
       throw new BadRequestError(
         'Failed to confirm document is placed in correct place. Correct place is ' +
           location
+      );
+    }
+  }
+
+  /**
+   * Delete pending document (MANAGER only)
+   */
+  @Delete('pending/:id')
+  @Security('api_key', ['MANAGER'])
+  @Response<SuccessResponse>(200)
+  public async deletePending(@Request() request: any, @Path() id: UUID) {
+    const result = await this.documentService.deletePendingDocument(
+      id,
+      request.user
+    );
+
+    if (result) return new SuccessResponse('Success', result);
+    else {
+      throw new BadRequestError(
+        'Failed to delete pending document.'
       );
     }
   }
