@@ -37,6 +37,7 @@ export class FolderService {
             },
             relations: ['documents'],
           });
+      if (!folder) return null;
       const current = folder?.documents
         .filter((document) =>
           [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(
