@@ -16,7 +16,7 @@ export class LockerService {
 
   public async getOne(id: UUID, departmentId?: UUID) {
     try {
-      return departmentId
+      const locker = departmentId
         ? await this.lockerRepository.findOne({
             where: {
               id: id,
@@ -26,12 +26,16 @@ export class LockerService {
                 },
               },
             },
+            relations: ['folders'],
           })
         : await this.lockerRepository.findOne({
             where: {
               id: id,
             },
+            relations: ['folders'],
           });
+      const current = locker?.folders.length;
+      return { ...locker, current };
     } catch (error) {
       console.log(error);
       return null;
