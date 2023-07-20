@@ -195,7 +195,7 @@ export class DocumentService {
         if (
           folder.documents
             .filter((document) =>
-              [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(
+              [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED, DocumentStatus.PENDING].includes(
                 document.status
               )
             )

@@ -139,10 +139,15 @@ export class ImportRequestService {
       // check if folder has enough capacity
       if (folder) {
         if (
-          folder.documents.reduce(
-            (sum, document) => sum + document.numOfPages,
-            0
-          ) +
+          folder.documents
+            .filter((document) =>
+              [
+                DocumentStatus.AVAILABLE,
+                DocumentStatus.BORROWED,
+                DocumentStatus.PENDING,
+              ].includes(document.status)
+            )
+            .reduce((sum, document) => sum + document.numOfPages, 0) +
             createImportRequestDto.document.numOfPages >
           folder.capacity
         ) {
@@ -192,7 +197,7 @@ export class ImportRequestService {
         relations: {
           document: true,
           createdBy: true,
-        }
+        },
       });
 
       if (!importRequest) {
@@ -300,19 +305,21 @@ export class ImportRequestService {
         {
           status: RequestStatus.PENDING,
           expired_at: LessThan(new Date()),
-        }, {
+        },
+        {
           status: RequestStatus.EXPIRED,
         }
-      )
+      );
       const updateExpiredApproved = this.importRequestRepository.update(
         {
           status: RequestStatus.APPROVED,
           updatedAt: LessThan(subtractDays(new Date(), 3)),
-        }, {
+        },
+        {
           status: RequestStatus.EXPIRED,
         }
-      )
-      return Promise.all([updateExpiredPending, updateExpiredApproved])
+      );
+      return Promise.all([updateExpiredPending, updateExpiredApproved]);
     } catch (error) {
       console.log(error);
       return null;
