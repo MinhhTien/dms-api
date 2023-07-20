@@ -13,6 +13,7 @@ import { Department } from '../../departments/entities/department.entity';
 import { ImportRequest } from '../../import_requests/entities/import_request.entity';
 import { BorrowRequest } from '../../borrow_requests/entities/borrow_request.entity';
 import { Notification } from '../../notifications/entities/notification.entity';
+import { BorrowHistory } from '../../borrow_requests/entities/borrow_history.entity';
 
 @Entity()
 export class User {
@@ -58,6 +59,9 @@ export class User {
 
   @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.createdBy)
   borrowRequests: BorrowRequest[];
+
+  @OneToMany(() => BorrowHistory, (borrowHistory) => borrowHistory.user)
+  borrowHistories: BorrowRequest[];
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];
