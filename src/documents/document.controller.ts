@@ -250,6 +250,7 @@ export class DocumentController extends Controller {
       file.filename,
       request.user
     );
+    await convert(file.filename);
     if (result) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Failed to upload file of document.');
   }
