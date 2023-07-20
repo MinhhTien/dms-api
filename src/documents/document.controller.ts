@@ -247,9 +247,13 @@ export class DocumentController extends Controller {
       file.filename,
       request.user
     );
-    await convert(file.filename);
-    if (result) return new SuccessResponse('Success', result);
-    else throw new BadRequestError('Failed to upload file of document.');
+
+    if (result) {
+      // convert pdf to png for scan
+      convert(file.filename);
+
+      return new SuccessResponse('Success', result);
+    } else throw new BadRequestError('Failed to upload file of document.');
   }
 
   /**
