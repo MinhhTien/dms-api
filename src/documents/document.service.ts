@@ -323,12 +323,6 @@ export class DocumentService {
           duplicatePercent: 0,
         };
 
-      await Promise.all(
-        documentList.map((document) => {
-          convert(document.storageUrl);
-        })
-      );
-
       const compareImageList = await Promise.all(
         documentList.map((document) =>
           compareImage(fileName, document.storageUrl, document.id)
