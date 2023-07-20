@@ -160,7 +160,7 @@ export class UsersController extends Controller {
   @Delete('disable/:id')
   public async disable(@Path() id: UUID) {
     const result = await this.userService.disable(id);
-    if (result) return new SuccessResponse('Success', null);
+    if (result) return new SuccessResponse('Success', result);
     else return new BadRequestError('Fail to disable account.');
   }
 
@@ -172,7 +172,7 @@ export class UsersController extends Controller {
   @Post('enable/:id')
   public async enable(@Path() id: UUID) {
     const result = await this.userService.enable(id);
-    if (result) return new SuccessResponse('Success', null);
+    if (result) return new SuccessResponse('Success', result);
     else return new BadRequestError('Fail to enable account.');
   }
 
@@ -184,7 +184,7 @@ export class UsersController extends Controller {
   @Post('delete/:id')
   public async delete(@Path() id: UUID) {
     const result = await this.userService.delete(id);
-    if (result) return new SuccessResponse('Success', null);
+    if (result) return new SuccessResponse('Success', result);
     else return new BadRequestError('Fail to delete account.');
   }
 
@@ -195,7 +195,7 @@ export class UsersController extends Controller {
   @Get('borrow-history')
   public async borrowHistory(@Request() request: any) {
     const result = await this.userService.getBorrowHistories(request.user.id);
-    if (result) return new SuccessResponse('Success', null);
+    if (result) return new SuccessResponse('Success', result);
     else return new BadRequestError('Fail to get borrow history');
   }
 
@@ -206,7 +206,7 @@ export class UsersController extends Controller {
   @Get('return-late')
   public async returnLate(@Request() request: any) {
     const result = await this.userService.getBorrowHistories(request.user.id, true);
-    if (result) return new SuccessResponse('Success', null);
+    if (result) return new SuccessResponse('Success', result);
     else return new BadRequestError('Fail to get return late history');
   }
 }

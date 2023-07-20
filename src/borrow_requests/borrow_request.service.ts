@@ -62,7 +62,7 @@ export class BorrowRequestService {
 
   public async getOne(id: UUID, createdBy?: UUID) {
     try {
-      const result = await this.borrowRequestRepository.findOne({
+      const borrowRequest = await this.borrowRequestRepository.findOne({
         where: {
           id: id,
           ...(createdBy && { createdBy: { id: createdBy } }),
@@ -84,12 +84,41 @@ export class BorrowRequestService {
           updatedBy: true,
         },
       });
-      return result?.status === RequestStatus.APPROVED && createdBy
-        ? {
-            ...result,
-            qrcode: uuidToBase64(result.id),
-          }
-        : result;
+      let data;
+      if (borrowRequest?.status === RequestStatus.APPROVED && createdBy)
+        data = { ...borrowRequest, qrcode: uuidToBase64(borrowRequest.id) };
+      else if (borrowRequest?.document.status === DocumentStatus.BORROWED) {
+        const borrowHistories = await this.borrowHistoryRepository.find({
+          where: {
+            document: {
+              id: borrowRequest.document.id,
+              status: DocumentStatus.BORROWED,
+            },
+          },
+          order: {
+            startDate: 'DESC',
+          },
+          relations: {
+            user: true,
+          },
+        });
+        console.log('borrowHistories:: ', borrowHistories);
+        if (borrowHistories.length === 0) {
+          return null;
+        }
+
+        const borrowHistory = borrowHistories[0];
+        data = {
+          ...borrowRequest,
+          document: {
+            ...borrowRequest.document,
+            borrowedBy: borrowHistory.user,
+          },
+        };
+      } else {
+        data = borrowRequest;
+      }
+      return data;
     } catch (error) {
       console.log(error);
       return null;
@@ -274,7 +303,7 @@ export class BorrowRequestService {
         borrowRequest: borrowRequest,
         user: borrowRequest.createdBy,
         startDate: borrowRequest.startDate,
-        dueDate: addDays(borrowRequest.startDate, borrowRequest.borrowDuration)
+        dueDate: addDays(borrowRequest.startDate, borrowRequest.borrowDuration),
       });
 
       const [result, history] = await Promise.all([
