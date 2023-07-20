@@ -187,4 +187,26 @@ export class UsersController extends Controller {
     if (result) return new SuccessResponse('Success', null);
     else return new BadRequestError('Fail to delete account.');
   }
+
+  /**
+   * View list of borrow histories (EMPLOYEE only)
+   */
+  @Security('api_key', ['EMPLOYEE'])
+  @Get('borrow-history')
+  public async borrowHistory(@Request() request: any) {
+    const result = await this.userService.getBorrowHistories(request.user.id);
+    if (result) return new SuccessResponse('Success', null);
+    else return new BadRequestError('Fail to get borrow history');
+  }
+
+  /**
+   * View list of return late histories (EMPLOYEE only)
+   */
+  @Security('api_key', ['EMPLOYEE'])
+  @Get('return-late')
+  public async returnLate(@Request() request: any) {
+    const result = await this.userService.getBorrowHistories(request.user.id, true);
+    if (result) return new SuccessResponse('Success', null);
+    else return new BadRequestError('Fail to get return late history');
+  }
 }

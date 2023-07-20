@@ -274,7 +274,7 @@ export class BorrowRequestService {
         borrowRequest: borrowRequest,
         user: borrowRequest.createdBy,
         startDate: borrowRequest.startDate,
-        endDate: addDays(borrowRequest.startDate, borrowRequest.borrowDuration)
+        dueDate: addDays(borrowRequest.startDate, borrowRequest.borrowDuration)
       });
 
       const [result, history] = await Promise.all([

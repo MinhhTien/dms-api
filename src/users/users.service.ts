@@ -10,6 +10,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { Role } from './entities/role.entity';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { novu } from '../lib/notification';
+import { BorrowHistory } from 'borrow_requests/entities/borrow_history.entity';
 
 @singleton()
 export class UsersService {
@@ -242,6 +243,27 @@ export class UsersService {
       return result.affected;
     } catch (error) {
       console.log('Error fetching user data:', error);
+      return null;
+    }
+  }
+
+  public async getBorrowHistories(id: UUID, late?: boolean) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: {
+          id: id,
+          status: UserStatus.ACTIVE,
+        },
+        relations: ['borrowHistories'],
+      });
+      if (user === null) return null;
+      return late
+        ? user.borrowHistories.filter((borrowHistory: BorrowHistory) => {
+            return borrowHistory.returnDate > borrowHistory.dueDate;
+        })
+        : user.borrowHistories;
+    } catch (error) {
+      console.log('Error fetching user borrow history: ', error);
       return null;
     }
   }
