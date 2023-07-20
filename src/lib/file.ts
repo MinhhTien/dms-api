@@ -43,12 +43,11 @@ export const convert = async (fileName: string) => {
       direction: 'row',
     });
 
-    result.write(`temp/${name}.png`, () => {
-      console.log('Convert success!');
-      tempFileNameList.forEach((fileName) => {
-        fs.unlink(fileName, (err) => {
-          if (err) console.log(err);
-        });
+    await result.write(`temp/${name}.png`);
+    console.log('Convert success!');
+    tempFileNameList.forEach((fileName) => {
+      fs.unlink(fileName, (err) => {
+        if (err) console.log(err);
       });
     });
     console.log(`Convert ${fileName} success!`);
