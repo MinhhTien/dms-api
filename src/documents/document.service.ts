@@ -294,7 +294,6 @@ export class DocumentService {
 
   public async checkDuplicatePercent(fileName: string, departmentId?: UUID) {
     try {
-      await convert(fileName);
       const documentList = await this.documentRepository.find({
         where: {
           status: In([

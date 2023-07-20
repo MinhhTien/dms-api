@@ -6,6 +6,7 @@ import Jimp from 'jimp';
 import { UUID } from './global.type';
 
 export const convert = async (fileName: string) => {
+  console.log(`Converting ${fileName} ...`);
   const name = fileName.split('.')[0];
   const pngFileName = resolve('temp', `${name}.png`);
   if (!fs.existsSync('temp')) fs.mkdirSync('temp');
@@ -46,6 +47,7 @@ export const convert = async (fileName: string) => {
       });
     });
   });
+  console.log(`Convert ${fileName} success!`);
 };
 
 export const compareImage = async (
@@ -53,20 +55,29 @@ export const compareImage = async (
   storageUrl: string,
   documentId: UUID
 ) => {
+  try {
   const newFilePNG = newFileName.split('.')[0];
   const storageFilePNG = storageUrl.split('.')[0];
 
   const newFilePath = resolve('temp', `${newFilePNG}.png`);
-  if (!fs.existsSync(newFilePath))
+  if (!fs.existsSync(newFilePath)) {
+    console.log('new file not exist');
     return { duplicatePercent: 0, documentId: null };
+  }
 
   const storageFilePath = resolve('temp', `${storageFilePNG}.png`);
-  if (!fs.existsSync(storageFilePath))
+  if (!fs.existsSync(storageFilePath)) {
+    console.log('old storage file not exist');
     return { duplicatePercent: 0, documentId: null };
+  }
 
   const newFile = await Jimp.read(`temp/${newFilePNG}.png`);
   const oldFile = await Jimp.read(`temp/${storageFilePNG}.png`);
 
   const diff = Jimp.diff(newFile, oldFile).percent;
   return { duplicatePercent: Math.round((1 - diff) * 100) / 100, documentId };
+  } catch (error) {
+    console.log(error);
+    return { duplicatePercent: 0, documentId: null };
+  }
 };
