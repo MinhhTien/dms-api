@@ -1,4 +1,4 @@
-const combineImage = require('combine-image');
+//const combineImage = require('combine-image');
 import pdfImgConvert from 'pdf-img-convert';
 import fs from 'fs';
 import { resolve } from 'path';
@@ -22,34 +22,12 @@ export const convert = async (fileName: string) => {
     }
 
     const outputImages = await pdfImgConvert.convert(pdfFilePath);
-    const tempFileNameList: string[] = [];
-    const writeFilePromise = [];
 
-    let tempFileName = '';
-    for (let i = 0; i < outputImages.length; i++) {
-      tempFileName = `temp/${name}` + i + '.png';
-      tempFileNameList.push(tempFileName);
-      writeFilePromise.push(
-        fs.writeFile(tempFileName, outputImages[i], function (error) {
-          if (error) {
-            console.error('Error: ' + error);
-          }
-        })
-      );
-    }
+    // write first image to png file
+    console.log('outputImages length: ', outputImages.length);
+    if (outputImages.length === 0) return;
+    fs.writeFileSync(`temp/${name}.png`, outputImages[0]);
 
-    await Promise.all(writeFilePromise);
-    const result = await combineImage(tempFileNameList, {
-      direction: 'row',
-    });
-
-    await result.write(`temp/${name}.png`);
-    console.log('Convert success!');
-    tempFileNameList.forEach((fileName) => {
-      fs.unlink(fileName, (err) => {
-        if (err) console.log(err);
-      });
-    });
     console.log(`Convert ${fileName} success!`);
   } catch (error) {
     console.log('Convert: ' + error);
