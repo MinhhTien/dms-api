@@ -34,7 +34,7 @@ export class DocumentService {
     withStorageUrl?: boolean
   ) {
     try {
-      return await this.documentRepository.findOne({
+      const document = await this.documentRepository.findOne({
         where: {
           id: id,
           ...(departmentId && {
@@ -80,6 +80,37 @@ export class DocumentService {
           ],
         }),
       });
+      if (!document) return null;
+
+      let data;
+      if (document.status === DocumentStatus.BORROWED) {
+        const borrowHistories = await this.borrowHistoryRepository.find({
+          where: {
+            document: {
+              id: document.id,
+              status: DocumentStatus.BORROWED,
+            },
+          },
+          order: {
+            startDate: 'DESC',
+          },
+          relations: {
+            user: true,
+          },
+        });
+        console.log('borrowHistories:: ', borrowHistories);
+        if (borrowHistories.length === 0) {
+          return null;
+        }
+
+        const borrowHistory = borrowHistories[0];
+
+        data = {
+          ...document,
+          borrowedBy: borrowHistory.user,
+        };
+      } else data = document;
+      return data;
     } catch (error) {
       console.log(error);
       return null;

@@ -148,6 +148,7 @@ export class DocumentController extends Controller {
             DocumentStatus.PENDING,
             DocumentStatus.REQUESTING,
           ]);
+
     if (result !== null) return new SuccessResponse('Success', result);
     else throw new BadRequestError('Document not existed.');
   }
