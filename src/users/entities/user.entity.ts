@@ -61,7 +61,7 @@ export class User {
   borrowRequests: BorrowRequest[];
 
   @OneToMany(() => BorrowHistory, (borrowHistory) => borrowHistory.user)
-  borrowHistories: BorrowRequest[];
+  borrowHistories: BorrowHistory[];
 
   @OneToMany(() => Notification, (notification) => notification.user)
   notifications: Notification[];

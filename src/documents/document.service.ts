@@ -439,7 +439,7 @@ export class DocumentService {
 
       const borrowHistory = document.borrowHistories.find(
         (history) =>
-          history.startDate <= new Date() && history.endDate >= new Date()
+          history.startDate <= new Date() && history.dueDate >= new Date()
       );
       if (!borrowHistory) {
         return 'Document can be returned but late.';

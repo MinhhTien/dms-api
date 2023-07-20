@@ -26,8 +26,8 @@ export class BorrowHistory {
   @Column({ name: 'start_date', type: 'timestamptz' })
   startDate: Date;
 
-  @Column({ name: 'end_date', type: 'timestamptz' })
-  endDate: Date;
+  @Column({ name: 'due_date', type: 'timestamptz' })
+  dueDate: Date;
 
   @ManyToOne(() => Document, (document) => document.borrowRequests, {
     cascade: ['update'],
