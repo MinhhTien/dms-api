@@ -12,6 +12,7 @@ import { FindDocumentDto } from './dtos/find-document.dto';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { addDays } from '../lib/utils';
 import { compareImage } from '../lib/file';
+import fs from 'fs';
 
 @singleton()
 export class DocumentService {
@@ -289,6 +290,36 @@ export class DocumentService {
     } catch (error) {
       console.log(error);
       return false;
+    }
+  }
+
+  public async deleteStorageUrl(documentId: UUID, departmentId?: UUID) {
+    const document = await this.documentRepository.findOne({
+      where: {
+        id: documentId,
+        storageUrl: Not(IsNull()),
+        ...(departmentId && {
+          folder: {
+            locker: {
+              room: {
+                department: {
+                  id: departmentId,
+                },
+              },
+            },
+          },
+        }),
+      },
+      select: ['id', 'storageUrl'],
+    });
+
+    if (document) {
+      fs.unlink('uploads/' + document.storageUrl, (err) => {
+        if (err) console.log(err);
+      });
+      fs.unlink('temp/' + `${document.storageUrl.split('.')[0]}.png`, (err) => {
+        if (err) console.log(err);
+      });
     }
   }
 
