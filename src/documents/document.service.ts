@@ -11,7 +11,7 @@ import { Category } from '../categories/entities/category.entity';
 import { FindDocumentDto } from './dtos/find-document.dto';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { addDays } from '../lib/utils';
-import { compareImage, convert } from '../lib/file';
+import { compareImage } from '../lib/file';
 
 @singleton()
 export class DocumentService {
