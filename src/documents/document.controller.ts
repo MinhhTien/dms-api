@@ -29,6 +29,7 @@ import { FindDocumentDto } from './dtos/find-document.dto';
 import { resolve } from 'path';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { VerifyReturnDocumentDto } from './dtos/verify-return-document.dto';
+import { convert } from '../lib/file';
 
 @injectable()
 @Tags('Document')
@@ -265,6 +266,7 @@ export class DocumentController extends Controller {
     @UploadedFile() file: Express.Multer.File
   ) {
     console.log(file);
+    await convert(file.filename);
     const duplicatePercent = await this.documentService.checkDuplicatePercent(
       file.filename,
       request.user.role.name === 'EMPLOYEE'
