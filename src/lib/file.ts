@@ -16,7 +16,10 @@ export const convert = async (fileName: string) => {
     if (fs.existsSync(pngFileName)) return;
 
     const pdfFilePath = resolve('uploads', fileName);
-    if (!fs.existsSync(pdfFilePath)) return;
+    if (!fs.existsSync(pdfFilePath)) {
+      console.log('convert::' + pdfFilePath + 'File not exist');
+      return;
+    }
 
     const outputImages = await pdfImgConvert.convert(pdfFilePath);
     const tempFileNameList: string[] = [];

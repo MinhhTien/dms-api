@@ -230,18 +230,15 @@ export class DocumentController extends Controller {
             true
           );
     if (document == null) {
-      fs.unlink(__dirname + '/../../../uploads/' + file.filename, (err) => {
+      fs.unlink('uploads/' + file.filename, (err) => {
         if (err) console.log(err);
       });
       throw new BadRequestError('Document not existed.');
     } else {
       if (document.storageUrl != null) {
-        fs.unlink(
-          __dirname + '/../../../uploads/' + document.storageUrl,
-          (err) => {
-            if (err) console.log(err);
-          }
-        );
+        fs.unlink('uploads/' + document.storageUrl, (err) => {
+          if (err) console.log(err);
+        });
       }
     }
 
@@ -343,9 +340,7 @@ export class DocumentController extends Controller {
 
     if (result) return new SuccessResponse('Success', result);
     else {
-      throw new BadRequestError(
-        'Failed to delete pending document.'
-      );
+      throw new BadRequestError('Failed to delete pending document.');
     }
   }
 
