@@ -30,6 +30,7 @@ import { resolve } from 'path';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { VerifyReturnDocumentDto } from './dtos/verify-return-document.dto';
 import { convert } from '../lib/file';
+import { ReturnDocumentDto } from './dtos/return-document.dto';
 
 @injectable()
 @Tags('Document')
@@ -381,11 +382,15 @@ export class DocumentController extends Controller {
   @Response<SuccessResponse>(200)
   public async return(
     @Request() request: any,
-    @Body() verifyReturnDocumentDto: VerifyReturnDocumentDto
+    @Body() returnDocumentDto: ReturnDocumentDto
   ) {
-    console.log(base64toUUID(verifyReturnDocumentDto.QRCode));
-    const documentId = base64toUUID(verifyReturnDocumentDto.QRCode);
-    const result = await this.documentService.return(documentId, request.user);
+    console.log(base64toUUID(returnDocumentDto.QRCode));
+    const documentId = base64toUUID(returnDocumentDto.QRCode);
+    const result = await this.documentService.return(
+      documentId,
+      request.user,
+      returnDocumentDto.note
+    );
 
     if (result)
       return new SuccessResponse(

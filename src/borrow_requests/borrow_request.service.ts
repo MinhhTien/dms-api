@@ -11,15 +11,18 @@ import { UUID } from 'lib/global.type';
 import { RejectBorrowRequestDto } from './dtos/reject_borrow_request.dto';
 import { FindBorrowRequestDto } from './dtos/find_borrow_request.dto';
 import { uuidToBase64 } from '../lib/barcode';
+import { BorrowHistory } from './entities/borrow_history.entity';
 
 @singleton()
 export class BorrowRequestService {
   private borrowRequestRepository: Repository<BorrowRequest>;
   private documentRepository: Repository<Document>;
+  private borrowHistoryRepository: Repository<BorrowHistory>;
 
   constructor() {
     this.borrowRequestRepository = AppDataSource.getRepository(BorrowRequest);
     this.documentRepository = AppDataSource.getRepository(Document);
+    this.borrowHistoryRepository = AppDataSource.getRepository(BorrowHistory);
   }
 
   validateBorrowRequest = (
@@ -238,6 +241,7 @@ export class BorrowRequestService {
         },
         relations: {
           document: true,
+          createdBy: true,
         },
       });
 
@@ -251,13 +255,33 @@ export class BorrowRequestService {
       if (borrowRequest.startDate > new Date())
         return 'You just can verify this document to borrow since start date';
 
-      if (addDays(borrowRequest.startDate, borrowRequest.borrowDuration) < new Date())
-        return 'You just can borrow this document within ' + borrowRequest.borrowDuration + ' days from start date';
+      if (
+        addDays(borrowRequest.startDate, borrowRequest.borrowDuration) <
+        new Date()
+      )
+        return (
+          'You just can borrow this document within ' +
+          borrowRequest.borrowDuration +
+          ' days from start date'
+        );
 
       borrowRequest.status = RequestStatus.DONE;
       borrowRequest.updatedBy = updatedBy;
       borrowRequest.document.status = DocumentStatus.BORROWED;
-      const result = await this.borrowRequestRepository.save(borrowRequest);
+
+      const borrowHistory = await this.borrowHistoryRepository.create({
+        document: borrowRequest.document,
+        borrowRequest: borrowRequest,
+        user: borrowRequest.createdBy,
+        startDate: borrowRequest.startDate,
+        endDate: addDays(borrowRequest.startDate, borrowRequest.borrowDuration)
+      });
+
+      const [result, history] = await Promise.all([
+        this.borrowRequestRepository.save(borrowRequest),
+        this.borrowHistoryRepository.save(borrowHistory),
+      ]);
+      console.log('Verify borrow request:: ', result, history);
       return result;
     } catch (error) {
       console.log(error);
@@ -323,19 +347,21 @@ export class BorrowRequestService {
         {
           status: RequestStatus.PENDING,
           expired_at: LessThan(new Date()),
-        }, {
+        },
+        {
           status: RequestStatus.EXPIRED,
         }
-      )
+      );
       const updateExpiredApproved = this.borrowRequestRepository.update(
         {
           status: RequestStatus.APPROVED,
           updatedAt: LessThan(subtractDays(new Date(), 3)),
-        }, {
+        },
+        {
           status: RequestStatus.EXPIRED,
         }
-      )
-      return Promise.all([updateExpiredPending, updateExpiredApproved])
+      );
+      return Promise.all([updateExpiredPending, updateExpiredApproved]);
     } catch (error) {
       console.log(error);
       return null;

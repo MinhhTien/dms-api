@@ -6,22 +6,24 @@ import { CreateDocumentDto } from './dtos/create-document.dto';
 import { User } from '../users/entities/user.entity';
 import { Folder } from '../folders/entities/folder.entity';
 import { UUID } from '../lib/global.type';
-import { DocumentStatus, RequestStatus } from '../constants/enum';
+import { DocumentStatus } from '../constants/enum';
 import { Category } from '../categories/entities/category.entity';
 import { FindDocumentDto } from './dtos/find-document.dto';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
-import { addDays } from '../lib/utils';
 import { compareImage } from '../lib/file';
 import fs from 'fs';
+import { BorrowHistory } from '../borrow_requests/entities/borrow_history.entity';
 
 @singleton()
 export class DocumentService {
   private documentRepository: Repository<Document>;
   private categoryRepository: Repository<Category>;
+  private borrowHistoryRepository: Repository<BorrowHistory>;
 
   constructor() {
     this.documentRepository = AppDataSource.getRepository(Document);
     this.categoryRepository = AppDataSource.getRepository(Category);
+    this.borrowHistoryRepository = AppDataSource.getRepository(BorrowHistory);
   }
 
   public async getOne(
@@ -195,9 +197,11 @@ export class DocumentService {
         if (
           folder.documents
             .filter((document) =>
-              [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED, DocumentStatus.PENDING].includes(
-                document.status
-              )
+              [
+                DocumentStatus.AVAILABLE,
+                DocumentStatus.BORROWED,
+                DocumentStatus.PENDING,
+              ].includes(document.status)
             )
             .reduce((sum, document) => sum + document.numOfPages, 0) +
             createDocumentDto.numOfPages >
@@ -421,19 +425,23 @@ export class DocumentService {
           status: DocumentStatus.BORROWED,
         },
         relations: {
-          borrowRequests: true,
+          borrowHistories: true,
+        },
+        order: {
+          borrowHistories: {
+            startDate: 'DESC',
+          },
         },
       });
       if (!document) {
         return null;
       }
-      const borrowRequest = document.borrowRequests.find(
-        (request) =>
-          request.status === RequestStatus.DONE &&
-          request.startDate <= new Date() &&
-          addDays(request.startDate, request.borrowDuration) >= new Date()
+
+      const borrowHistory = document.borrowHistories.find(
+        (history) =>
+          history.startDate <= new Date() && history.endDate >= new Date()
       );
-      if (!borrowRequest) {
+      if (!borrowHistory) {
         return 'Document can be returned but late.';
       }
       return true;
@@ -443,23 +451,35 @@ export class DocumentService {
     }
   }
 
-  public async return(id: UUID, updatedBy: User) {
+  public async return(id: UUID, updatedBy: User, note?: string) {
     try {
-      const document = await this.documentRepository.findOne({
+      const borrowHistories = await this.borrowHistoryRepository.find({
         where: {
-          id: id,
-          status: DocumentStatus.BORROWED,
+          document: {
+            id: id,
+            status: DocumentStatus.BORROWED,
+          },
+        },
+        order: {
+          startDate: 'DESC',
         },
         relations: {
-          borrowRequests: true,
+          document: true,
         },
       });
-      if (!document) {
-        return false;
+      console.log('borrowHistories:: ', borrowHistories);
+
+      if (borrowHistories.length === 0) {
+        return null;
       }
-      document.status = DocumentStatus.AVAILABLE;
-      document.updatedBy = updatedBy;
-      return await this.documentRepository.save(document);
+
+      const borrowHistory = borrowHistories[0];
+      borrowHistory.document.status = DocumentStatus.AVAILABLE;
+      borrowHistory.document.updatedBy = updatedBy;
+      borrowHistory.returnDate = new Date();
+      note && (borrowHistory.note = note);
+
+      return await this.borrowHistoryRepository.save(borrowHistory);
     } catch (error) {
       console.log(error);
       return null;

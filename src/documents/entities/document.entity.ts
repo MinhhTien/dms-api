@@ -16,6 +16,7 @@ import { User } from '../../users/entities/user.entity';
 import { ImportRequest } from '../../import_requests/entities/import_request.entity';
 import { BorrowRequest } from '../../borrow_requests/entities/borrow_request.entity';
 import { Category } from '../../categories/entities/category.entity';
+import { BorrowHistory } from '../../borrow_requests/entities/borrow_history.entity';
 
 @Entity()
 @Index(['name', 'status'], { unique: true })
@@ -68,7 +69,7 @@ export class Document {
   folder: Folder;
 
   @ManyToOne(() => Category, (category) => category.documents, {
-    cascade: ['update']
+    cascade: ['update'],
   })
   @JoinColumn({ name: 'category_id' })
   category: Category;
@@ -78,4 +79,7 @@ export class Document {
 
   @OneToMany(() => BorrowRequest, (borrowRequest) => borrowRequest.document)
   borrowRequests: BorrowRequest[];
+
+  @OneToMany(() => BorrowHistory, (borrowHistory) => borrowHistory.document)
+  borrowHistories: BorrowHistory[];
 }
