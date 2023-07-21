@@ -118,7 +118,7 @@ export class DocumentController extends Controller {
       await this.documentService.getMany(
         [DocumentStatus.PENDING],
         dto,
-        undefined,
+        dto.departmentId ? dto.departmentId : undefined,
         true
       )
     );

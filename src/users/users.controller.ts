@@ -109,12 +109,12 @@ export class UsersController extends Controller {
   }
 
   /**
-   * List employee account (MANAGER only)
-   * @param departmentId The id of department
+   * List employee account
+   * @param departmentId The id of department (optional)
    */
-  @Security('api_key', ['MANAGER'])
+  @Security('api_key', ['MANAGER', 'EMPLOYEE'])
   @Get('list')
-  public async list(@Query() departmentId: UUID) {
+  public async list(@Query() departmentId?: UUID) {
     const result = await this.userService.getAll(departmentId);
 
     if (result == null)

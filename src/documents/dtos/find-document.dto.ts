@@ -34,6 +34,8 @@ export class FindDocumentDto {
   folderId?: UUID;
 
   /**
+   * Default 1 
+   * 1 (ASC) - 0 (DESC)
    * @isNumber
    * @minimum 0
    * @maximum 1
@@ -42,6 +44,13 @@ export class FindDocumentDto {
    * @optional
    */
   sortName?: number;
+
+  /**
+   * Department id
+   * @optional
+   * @isString
+   */
+  departmentId?: UUID;
 
   /**
    * @isNumber
