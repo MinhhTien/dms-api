@@ -29,7 +29,7 @@ import { FindDocumentDto } from './dtos/find-document.dto';
 import { resolve } from 'path';
 import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { VerifyReturnDocumentDto } from './dtos/verify-return-document.dto';
-import { convert } from '../lib/file';
+import { convertFirstPage, convertAll } from '../lib/file';
 import { ReturnDocumentDto } from './dtos/return-document.dto';
 
 @injectable()
@@ -252,7 +252,7 @@ export class DocumentController extends Controller {
 
     if (result) {
       // convert pdf to png for scan
-      convert(file.filename);
+      convertAll(file.filename);
 
       return new SuccessResponse('Success', result);
     } else throw new BadRequestError('Failed to upload file of document.');
@@ -270,7 +270,7 @@ export class DocumentController extends Controller {
     @UploadedFile() file: Express.Multer.File
   ) {
     console.log(file);
-    await convert(file.filename);
+    await convertFirstPage(file.filename);
     const duplicatePercent = await this.documentService.checkDuplicatePercent(
       file.filename,
       request.user.role.name === 'EMPLOYEE'
