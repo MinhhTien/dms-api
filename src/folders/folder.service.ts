@@ -40,9 +40,11 @@ export class FolderService {
       if (!folder) return null;
       const current = folder?.documents
         .filter((document) =>
-          [DocumentStatus.AVAILABLE, DocumentStatus.BORROWED].includes(
-            document.status
-          )
+          [
+            DocumentStatus.AVAILABLE,
+            DocumentStatus.BORROWED,
+            DocumentStatus.PENDING,
+          ].includes(document.status)
         )
         .reduce((sum, document) => sum + document.numOfPages, 0);
       return { ...folder, current };

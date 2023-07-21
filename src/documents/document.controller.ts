@@ -31,6 +31,8 @@ import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { VerifyReturnDocumentDto } from './dtos/verify-return-document.dto';
 import { convertFirstPage, convertAll } from '../lib/file';
 import { ReturnDocumentDto } from './dtos/return-document.dto';
+import { MoveDocumentDto } from './dtos/move-document.dto';
+import { PossibleLocationDto } from './dtos/possible-location.dto';
 
 @injectable()
 @Tags('Document')
@@ -195,6 +197,47 @@ export class DocumentController extends Controller {
     }
     if (result === false)
       throw new BadRequestError('Document could not be updated.');
+    else throw new BadRequestError(result);
+  }
+
+  /**
+   * Get possible location for document (MANAGER only)
+   */
+  @Post('possible-location')
+  @Security('api_key', ['MANAGER'])
+  @Response<SuccessResponse>(200)
+  public async getPossibleLocation(
+    @Body() possibleLocationDto: PossibleLocationDto
+  ): Promise<any> {
+    const result = await this.documentService.getPossibleLocation(
+      possibleLocationDto.numOfPages,
+      possibleLocationDto.departmentId
+    );
+    return new SuccessResponse('Success', result);
+  }
+
+  /**
+   * Move Position document (MANAGER only)
+   */
+  @Put('move')
+  @Security('api_key', ['MANAGER'])
+  @Response<SuccessResponse>(200)
+  public async movePosition(
+    @Request() request: any,
+    @Body() moveDocumentDto: MoveDocumentDto
+  ): Promise<any> {
+    const result = await this.documentService.movePosition(
+      moveDocumentDto,
+      request.user
+    );
+    if (result === true) {
+      return new SuccessResponse(
+        'Success! Please scan new folder QRCode to verify location.',
+        result
+      );
+    }
+    if (result === false)
+      throw new BadRequestError('Document could not be moved.');
     else throw new BadRequestError(result);
   }
 

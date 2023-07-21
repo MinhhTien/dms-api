@@ -12,7 +12,6 @@ import { Role } from './role.entity';
 import { Department } from '../../departments/entities/department.entity';
 import { ImportRequest } from '../../import_requests/entities/import_request.entity';
 import { BorrowRequest } from '../../borrow_requests/entities/borrow_request.entity';
-import { Notification } from '../../notifications/entities/notification.entity';
 import { BorrowHistory } from '../../borrow_requests/entities/borrow_history.entity';
 
 @Entity()
@@ -62,7 +61,4 @@ export class User {
 
   @OneToMany(() => BorrowHistory, (borrowHistory) => borrowHistory.user)
   borrowHistories: BorrowHistory[];
-
-  @OneToMany(() => Notification, (notification) => notification.user)
-  notifications: Notification[];
 }
