@@ -41,7 +41,10 @@ export class ImportRequestController extends Controller {
   public async getMany(@Queries() findImportRequestDto: FindImportRequestDto) {
     return new SuccessResponse(
       'Success',
-      await this.importRequestService.getMany(findImportRequestDto)
+      await this.importRequestService.getMany(
+        findImportRequestDto,
+        findImportRequestDto?.createdBy
+      )
     );
   }
 

@@ -1,6 +1,6 @@
 import { User } from './entities/user.entity';
 import { AppDataSource } from '../database/data-source';
-import { UserStatus } from '../constants/enum';
+import { RoleType, UserStatus } from '../constants/enum';
 import { singleton } from 'tsyringe';
 import { Repository } from 'typeorm';
 import { UUID } from '../lib/global.type';
@@ -70,6 +70,9 @@ export class UsersService {
       const users = await this.userRepository.find({
         where: {
           status: UserStatus.ACTIVE,
+          role: {
+            name: RoleType.EMPLOYEE,
+          },
           ...(departmentId && {
             department: {
               id: departmentId,

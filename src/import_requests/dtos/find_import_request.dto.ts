@@ -1,10 +1,12 @@
+import { UUID } from '../../lib/global.type';
 import { RequestStatus } from '../../constants/enum';
 export class FindImportRequestDto {
-  //   /**
-  //    * @isString
-  //    * @optional
-  //    */
-  //   keyword?: string;
+  /**
+   * Requester id (MANAGER only)
+   * @optional
+   * @isString
+   */
+  createdBy?: UUID;
 
   /**
    * Request status filter

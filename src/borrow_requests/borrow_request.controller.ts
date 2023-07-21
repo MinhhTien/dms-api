@@ -43,7 +43,7 @@ export class BorrowRequestController extends Controller {
   ) {
     return new SuccessResponse(
       'Success',
-      await this.borrowRequestService.getMany(findBorrowRequestDto)
+      await this.borrowRequestService.getMany(findBorrowRequestDto, findBorrowRequestDto?.createdBy)
     );
   }
 
