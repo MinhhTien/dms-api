@@ -390,7 +390,7 @@ export class DocumentController extends Controller {
     const result = await this.documentService.return(
       documentId,
       request.user,
-      returnDocumentDto.note
+      returnDocumentDto?.note
     );
 
     if (result)
