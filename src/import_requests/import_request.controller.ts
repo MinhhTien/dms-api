@@ -133,8 +133,8 @@ export class ImportRequestController extends Controller {
       sendToSubscriber(
         NotificationType.IMPORT,
         result.createdBy.id,
-        `Your import request about document ${result.document.name} has been approved.`,
-        `Please bring the generated request QRCode and document to the manager for verification within 3 days.`
+        `Import request about document ${result.document.name} has been approved.`,
+        `Please show QRCode & document to manager for verification within 3 days.`
       );
 
       return new SuccessResponse('Success', true);

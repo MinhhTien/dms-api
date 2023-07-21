@@ -129,8 +129,8 @@ export class BorrowRequestController extends Controller {
       sendToSubscriber(
         NotificationType.BORROW,
         result.createdBy.id,
-        `Your borrow request for document ${result.document.name} has been approved.`,
-        `Please bring the generated request QRCode to the manager for verification within 3 days to receive the document`
+        `Borrow request for document ${result.document.name} has been approved.`,
+        `Please show generated QRCode to manager for verification within 3 days to receive the document`
       );
 
       return new SuccessResponse('Success', true);
