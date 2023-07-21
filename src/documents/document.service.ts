@@ -13,17 +13,24 @@ import { UpdateDocumentDto } from './dtos/update-document.dto';
 import { compareImage } from '../lib/file';
 import fs from 'fs';
 import { BorrowHistory } from '../borrow_requests/entities/borrow_history.entity';
+import { MoveDocumentDto } from './dtos/move-document.dto';
+import { Room } from '../rooms/entities/room.entity';
+import { Locker } from 'lockers/entities/locker.entity';
 
 @singleton()
 export class DocumentService {
   private documentRepository: Repository<Document>;
   private categoryRepository: Repository<Category>;
   private borrowHistoryRepository: Repository<BorrowHistory>;
+  private folderRepository: Repository<Folder>;
+  private roomRepository: Repository<Room>;
 
   constructor() {
     this.documentRepository = AppDataSource.getRepository(Document);
     this.categoryRepository = AppDataSource.getRepository(Category);
     this.borrowHistoryRepository = AppDataSource.getRepository(BorrowHistory);
+    this.folderRepository = AppDataSource.getRepository(Folder);
+    this.roomRepository = AppDataSource.getRepository(Room);
   }
 
   public async getOne(
@@ -302,6 +309,141 @@ export class DocumentService {
       if (error?.driverError?.detail?.includes('already exists')) {
         return 'Document name is already existed.';
       }
+      return false;
+    }
+  }
+
+  public async getPossibleLocation(numOfPages: number, departmentId: UUID) {
+    try {
+      const rooms = await this.roomRepository.find({
+        where: {
+          department: {
+            id: departmentId,
+          },
+        },
+        relations: {
+          lockers: {
+            folders: {
+              documents: true,
+            },
+          },
+        },
+      });
+
+      const possibleLocation = rooms.reduce((possibleRooms, room) => {
+        const lockers = room.lockers.reduce((possibleLockers, locker) => {
+          const folders = locker.folders.reduce((possibleFolders, folder) => {
+            if (
+              folder.documents
+                .filter((document) =>
+                  [
+                    DocumentStatus.AVAILABLE,
+                    DocumentStatus.BORROWED,
+                    DocumentStatus.PENDING,
+                  ].includes(document.status)
+                )
+                .reduce((sum, document) => sum + document.numOfPages, 0) +
+                numOfPages <=
+              folder.capacity
+            ) {
+              return [...possibleFolders, folder];
+            }
+            return possibleFolders;
+          }, [] as Folder[]);
+          if (folders.length > 0) {
+            locker.folders = folders;
+            return [...possibleLockers, locker];
+          } else return possibleLockers;
+        }, [] as Locker[]);
+        if (lockers.length > 0) {
+          room.lockers = lockers;
+          return [...possibleRooms, room];
+        }
+        return possibleRooms;
+      }, [] as Room[]);
+      
+      return possibleLocation.map((room) => ({
+        ...room,
+        lockers: room.lockers.map((locker) => ({
+          ...locker,
+          folders: locker.folders.map((folder) => {
+            const { documents, ...remain } = folder;
+            return {
+              ...remain,
+              current: documents.reduce(
+                (sum, document) => sum + document.numOfPages,
+                0
+              ),
+            };
+          }),
+        })),
+      }));
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
+  public async movePosition(moveDocumentDto: MoveDocumentDto, updatedBy: User) {
+    try {
+      const document = await this.getOne(moveDocumentDto.id, [
+        DocumentStatus.AVAILABLE,
+      ]);
+      if (!document) {
+        return 'Document not existed.';
+      }
+
+      // check if folder can contains this document
+      const newFolder = await this.folderRepository.findOne({
+        where: {
+          id: moveDocumentDto.folderId,
+          locker: {
+            room: {
+              department: {
+                id: document.folder.locker.room.department.id,
+              },
+            },
+          },
+        },
+      });
+      if (!newFolder) {
+        return 'Folder not existed in this department.';
+      }
+
+      // check if new folder has enough capacity
+      if (
+        newFolder.documents
+          .filter((document) =>
+            [
+              DocumentStatus.AVAILABLE,
+              DocumentStatus.BORROWED,
+              DocumentStatus.PENDING,
+            ].includes(document.status)
+          )
+          .reduce((sum, document) => sum + document.numOfPages, 0) +
+          document.numOfPages >
+        newFolder.capacity
+      ) {
+        return 'Not have enough space in Folder.';
+      }
+
+      const result = await this.documentRepository.update(
+        {
+          id: moveDocumentDto.id,
+        },
+        {
+          folder: {
+            id: moveDocumentDto.folderId,
+          },
+          status: DocumentStatus.PENDING,
+          updatedBy: updatedBy,
+        }
+      );
+      return result.affected === 1;
+    } catch (error: any) {
+      console.log('====');
+      console.error(error?.driverError?.detail);
+      console.log('====');
       return false;
     }
   }
