@@ -9,5 +9,5 @@ export class ReturnDocumentDto {
    * @isString
    * @isOptional
    */
-  note: string;
+  note?: string;
 }
