@@ -216,6 +216,7 @@ export class BorrowRequestService {
       );
       borrowRequest.createdBy = createdBy;
       const result = await this.borrowRequestRepository.save(borrowRequest);
+      result.document = document;
       console.log(result);
       return result;
     } catch (error: any) {
