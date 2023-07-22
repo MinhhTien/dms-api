@@ -412,7 +412,7 @@ export class DocumentService {
 
       // check if new folder has enough capacity
       if (!newFolder.documents) {
-        console.log('Empty folder')
+        console.log('Empty folder');
         if (document.numOfPages > newFolder.capacity) {
           return 'Not have enough space in Folder.';
         }
@@ -577,19 +577,43 @@ export class DocumentService {
     }
   }
 
-  public async deletePendingDocument(documentId: UUID, updatedBy: User) {
+  public async deleteDocument(
+    documentId: UUID,
+    updatedBy: User,
+    status: DocumentStatus
+  ) {
     try {
-      const result = await this.documentRepository.update(
-        {
+      const document = await this.documentRepository.findOne({
+        where: {
           id: documentId,
-          status: DocumentStatus.PENDING,
+          status,
         },
-        {
-          status: DocumentStatus.DELETED,
-          updatedBy: updatedBy,
-        }
-      );
-      return result.affected === 1;
+        relations: {
+          updatedBy: true,
+        },
+        select: ['id', 'storageUrl', 'status', 'updatedBy'],
+      });
+
+      if (!document) return false;
+
+      document.status = DocumentStatus.DELETED;
+      document.updatedBy = updatedBy;
+      await this.documentRepository.save(document);
+
+      if (document.storageUrl) {
+        // delete storageUrl
+        fs.unlink('uploads/' + document.storageUrl, (err) => {
+          if (err) console.log(err);
+        });
+        fs.unlink(
+          'temp/' + `${document.storageUrl.split('.')[0]}.png`,
+          (err) => {
+            if (err) console.log(err);
+          }
+        );
+      }
+      
+      return true;
     } catch (error) {
       console.log(error);
       return false;

@@ -382,9 +382,10 @@ export class DocumentController extends Controller {
   @Security('api_key', ['MANAGER'])
   @Response<SuccessResponse>(200)
   public async deletePending(@Request() request: any, @Path() id: UUID) {
-    const result = await this.documentService.deletePendingDocument(
+    const result = await this.documentService.deleteDocument(
       id,
-      request.user
+      request.user,
+      DocumentStatus.PENDING
     );
 
     if (result) return new SuccessResponse('Success', result);

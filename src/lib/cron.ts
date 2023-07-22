@@ -44,7 +44,7 @@ export const updateExpiredRequest = () => {
 // send notification to manager topic about number of pending document in 4h30pm
 export const sendNotiAboutNumOfPendingDocument = () => {
   const documentService = new DocumentService();
-  cron.schedule('20 * * * *', async () => {
+  cron.schedule('30 09 * * *', async () => {
     console.debug('---------------------');
     console.debug('Time: ', new Date());
     console.debug('Running SendNotiAboutNumOfPendingDocument Cron Job');
