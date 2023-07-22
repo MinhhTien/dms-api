@@ -11,6 +11,7 @@ export const updatePhotoURL = () => {
   const userService = new UsersService();
   cron.schedule('59 23 * * *', async () => {
     console.debug('---------------------');
+    console.debug('Time: ', new Date());
     console.debug('Running UpdatePhotoURL Cron Job');
     const users = await userService.getAll();
     users?.forEach(async (user) => {
@@ -29,6 +30,7 @@ export const updateExpiredRequest = () => {
   const importRequestService = new ImportRequestService();
   cron.schedule('59 23 * * *', async () => {
     console.debug('---------------------');
+    console.debug('Time: ', new Date());
     console.debug('Running UpdateExpiredRequest Cron Job');
     await Promise.all([
       borrowRequestService.updateExpired(),
@@ -42,8 +44,9 @@ export const updateExpiredRequest = () => {
 // send notification to manager topic about number of pending document in 4h30pm
 export const sendNotiAboutNumOfPendingDocument = () => {
   const documentService = new DocumentService();
-  cron.schedule('30 16 * * *', async () => {
+  cron.schedule('10 00 * * *', async () => {
     console.debug('---------------------');
+    console.debug('Time: ', new Date());
     console.debug('Running SendNotiAboutNumOfPendingDocument Cron Job');
     const pendingDocumentCount = await documentService.count([DocumentStatus.PENDING]);
     
