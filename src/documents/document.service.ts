@@ -442,6 +442,7 @@ export class DocumentService {
       return result.affected === 1;
     } catch (error: any) {
       console.log('====');
+      console.error(error)
       console.error(error?.driverError?.detail);
       console.log('====');
       return false;
