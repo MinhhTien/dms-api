@@ -361,7 +361,7 @@ export class DocumentService {
         }
         return possibleRooms;
       }, [] as Room[]);
-      
+
       return possibleLocation.map((room) => ({
         ...room,
         lockers: room.lockers.map((locker) => ({
@@ -411,8 +411,13 @@ export class DocumentService {
       }
 
       // check if new folder has enough capacity
-      if (
-        newFolder.documents
+      if (!newFolder.documents) {
+        console.log('Empty folder')
+        if (document.numOfPages > newFolder.capacity) {
+          return 'Not have enough space in Folder.';
+        }
+      } else if (
+        newFolder?.documents
           .filter((document) =>
             [
               DocumentStatus.AVAILABLE,
@@ -442,7 +447,7 @@ export class DocumentService {
       return result.affected === 1;
     } catch (error: any) {
       console.log('====');
-      console.error(error)
+      console.error(error);
       console.error(error?.driverError?.detail);
       console.log('====');
       return false;
