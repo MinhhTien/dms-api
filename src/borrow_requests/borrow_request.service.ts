@@ -238,6 +238,8 @@ export class BorrowRequestService {
           document: {
             borrowRequests: true,
           },
+          createdBy: true,
+          updatedBy: true,
         },
       });
 
@@ -329,6 +331,10 @@ export class BorrowRequestService {
           id: rejectBorrowRequestDto.id,
           status: RequestStatus.PENDING,
         },
+        relations: {
+          createdBy: true,
+          updatedBy: true,
+        }
       });
       if (!borrowRequest) {
         return 'Borrow Request not existed';
