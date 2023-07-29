@@ -49,7 +49,7 @@ export const sendNotiAboutNumOfPendingDocument = () => {
     console.debug('Time: ', new Date());
     console.debug('Running SendNotiAboutNumOfPendingDocument Cron Job');
     const pendingDocumentCount = await documentService.count([DocumentStatus.PENDING]);
-    
+
     await sendToManagerTopic(
       NotificationType.PENDING,
       `There are ${pendingDocumentCount} pending documents.`,

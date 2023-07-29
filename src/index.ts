@@ -17,12 +17,28 @@ import { multerUpload } from './lib/upload';
 import { MulterError } from 'multer';
 import { createClient } from 'redis';
 import { RedisClientType } from '@redis/client';
-import { updatePhotoURL, updateExpiredRequest, sendNotiAboutNumOfPendingDocument } from './lib/cron';
+import {
+  updatePhotoURL,
+  updateExpiredRequest,
+  sendNotiAboutNumOfPendingDocument,
+} from './lib/cron';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
 initializeApp({
   credential: cert(serviceAccount as ServiceAccount),
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minutes
+  max: 100,
+  handler: (req, res) => {
+    res.status(429).send({
+      status: 429,
+      message: 'Too many requests!',
+    });
+  },
 });
 
 const app: Express = express();
@@ -37,10 +53,11 @@ const redisClient: RedisClientType = createClient({
 });
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || '*',
+  origin: [process.env.CORS_ORIGIN || 'http://localhost:3000'],
 };
 
 app.use(cors(corsOptions));
+app.use(apiLimiter);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
@@ -136,6 +153,7 @@ app.listen(port, async () => {
   sendNotiAboutNumOfPendingDocument();
 
   console.log(`🔥[cache]: Redis is connected`);
+  console.log(`🔥[cors]: CORS_ORIGIN is ${corsOptions.origin}`);
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
 
